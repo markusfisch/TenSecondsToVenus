@@ -29,6 +29,7 @@ body
 <p>You are on board of a space station in Venus orbit.</p>
 <p>You are sleeping.</p>
 <p>You wake from a roaring BANG!</p>
+<p>(Loading ...)</p>
 </div>
 <script>
 
@@ -346,7 +347,7 @@ var Game = (function()
 		moving,
 		floating,
 		loadTimer = null,
-		stop = false,
+		running = false,
 		killed = false,
 		fireBoostersUntil = 0,
 		messageGoodUntil = 0,
@@ -543,9 +544,6 @@ var Game = (function()
 
 	function run()
 	{
-		if( stop )
-			return;
-
 		draw();
 		requestAnimFrame( run );
 	}
@@ -570,7 +568,8 @@ var Game = (function()
 		{
 			var obj = objects[name];
 
-			if( obj.left !== "undefined" &&
+			if( !obj.taken &&
+				obj.left !== "undefined" &&
 				x >= obj.left &&
 				x <= obj.right &&
 				y >= obj.top &&
@@ -591,30 +590,16 @@ var Game = (function()
 	function reset()
 	{
 		start = new Date().getTime();
-		stop = false;
 		killed = false;
 		fireBoostersUntil = 0;
 		message = null;
 
-		// calculate positions for this size
+		for( var name in objects )
 		{
-			var img = objects.station.images[0],
-				rx = img.width,
-				ry = img.height;
+			var obj = objects[name];
 
-			for( var name in objects )
-			{
-				var obj = objects[name];
-
-				if( obj.ox !== "undefined" )
-				{
-					obj.x = Math.round( obj.ox/ref[0]*rx );
-					obj.y = Math.round( obj.oy/ref[1]*ry );
-					obj.taken = false;
-				}
-			}
-
-			moving = 10/ref[0]*rx;
+			if( obj.ox !== "undefined" )
+				obj.taken = false;
 		}
 
 		// reset lamp
@@ -629,6 +614,8 @@ var Game = (function()
 			a.hasSuit = false;
 			a.hasComputer = false;
 			a.hasPen = false;
+			a.x = a.startX;
+			a.y = a.startY;
 		}
 	}
 
@@ -671,10 +658,37 @@ var Game = (function()
 			}
 		}
 
-		document.getElementById( "Intro" ).style.display = "none";
+		// calculate positions for this size
+		{
+			var img = objects.station.images[0],
+				rx = img.width,
+				ry = img.height;
 
-		reset();
-		run();
+			for( var name in objects )
+			{
+				var obj = objects[name];
+
+				if( obj.ox !== "undefined" )
+				{
+					obj.x = Math.round( obj.ox/ref[0]*rx );
+					obj.y = Math.round( obj.oy/ref[1]*ry );
+				}
+			}
+
+			moving = 10/ref[0]*rx;
+
+			var a = objects.astronaut;
+			a.startX = a.x;
+			a.startY = a.y;
+		}
+
+		if( !running )
+		{
+			document.getElementById( "Intro" ).style.display = "none";
+
+			running = true;
+			run();
+		}
 	}
 
 	function load()
@@ -729,6 +743,7 @@ var Game = (function()
 		if( "ontouchstart" in document.documentElement )
 			canvas.domElement.ontouchend = click;
 
+		reset();
 		resize( width, height );
 
 		return canvas.domElement;
