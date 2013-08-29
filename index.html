@@ -372,13 +372,13 @@ var Game = (function()
 		{
 			var t = now*.001,
 				r = obj.swirl,
-				x = centerX+r*Math.cos( t ),
-				y = centerY+r*Math.sin( t ),
+				x = Math.round( centerX+r*Math.cos( t ) ),
+				y = Math.round( centerY+r*Math.sin( t ) ),
 				s = uptime < 10000 ?
 					Math.round( img.width+
 						(canvas.width-img.width)/10000*uptime ) :
 					canvas.width,
-				hs = s/2;
+				hs = Math.round( s/2 );
 
 			obj.x = x-hs;
 			obj.y = y-hs;
@@ -442,7 +442,7 @@ var Game = (function()
 
 		if( !img )
 		{
-			x = centerX+obj.x;
+			x = Math.round( centerX+obj.x );
 
 			if( obj.hasHelmet && obj.hasSuit )
 				img = obj.images[5];
@@ -652,8 +652,8 @@ var Game = (function()
 						img = images[n] = c;
 					}
 
-					img.cx = img.width/2;
-					img.cy = img.height/2;
+					img.cx = Math.round( img.width/2 );
+					img.cy = Math.round( img.height/2 );
 				}
 			}
 		}
