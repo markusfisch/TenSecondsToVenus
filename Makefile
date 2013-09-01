@@ -1,5 +1,5 @@
-OBJECTS = img *.html
-PRODUCTION = hhsw.de@ssh.strato.de:sites/proto/ld27/
+OBJECTS = *.html *.png *.svg
+PRODUCTION = hhsw.de@ssh.strato.de:sites/TenSecondsToVenus/
 OPTIONS = --recursive \
 	--links \
 	--update \
