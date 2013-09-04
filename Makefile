@@ -7,7 +7,10 @@ OPTIONS = --recursive \
 	--times \
 	--compress
 
-production:
+production: atlas
 	rsync $(OPTIONS) \
 		$(OBJECTS) \
 		$(PRODUCTION)
+
+atlas:
+	PREFER_SMALLER=1 mkatlas svg/img/* | patchatlas index.html
