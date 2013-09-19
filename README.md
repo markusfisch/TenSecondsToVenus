@@ -8,6 +8,8 @@ View original
 
 Enhanced post-compo version.
 
+![Screenshot](http://markusfisch.github.io/TenSecondsToVenus/screenshot.png)
+
 Play it
 -------
 
