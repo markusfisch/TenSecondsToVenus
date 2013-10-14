@@ -92,7 +92,7 @@ canvas
 	margin: 0 auto; padding: 1rem;
 }
 
-@media screen and (max-width: 40rem)
+@media screen and (max-width: 800px)
 {
 	body
 	{
@@ -961,6 +961,10 @@ function start()
 			window.innerWidth,
 			window.innerHeight );
 	};
+
+	// start loading the badge in the background
+	var patch = new Image();
+	patch.src = "patch.png";
 }
 
 window.onload = function()
@@ -968,11 +972,11 @@ window.onload = function()
 	atlas = new Image();
 	atlas.src = "atlas.png";
 
-	function waitForMap()
+	function waitForAtlas()
 	{
 		if( !atlas.complete )
 		{
-			setTimeout( waitForMap, 1000 );
+			setTimeout( waitForAtlas, 1000 );
 			return;
 		}
 
@@ -981,7 +985,7 @@ window.onload = function()
 		e.innerHTML = "Ready!";
 	}
 
-	waitForMap();
+	waitForAtlas();
 };
 
 </script>
