@@ -690,10 +690,10 @@ var Game = (function()
 				'<h2>You made it!</h2>'+
 				'<p>As sole survivor of that '+
 				'<em>Unfortunate Thing Back Then Over Venus</em> '+
-				'you are awarded the Venus Special Achievement patch.</p>'+
-				'<a href="patch.svg"><img '+
-					'src="patch.png"'+
-					'alt="Venus Special Achievement patch"/></a></a>'+
+				'you are awarded the Venus Special Achievement patch:</p>'+
+				'<img '+
+					'src="patch.svg" '+
+					'alt="Venus Special Achievement patch"/>'+
 				'</div>';
 
 			e.style.display = "block";
@@ -964,7 +964,7 @@ function start()
 
 	// start loading the badge in the background
 	var patch = new Image();
-	patch.src = "patch.png";
+	patch.src = "patch.svg";
 }
 
 window.onload = function()
