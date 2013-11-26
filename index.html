@@ -194,8 +194,8 @@ var Canvas;
 		this.width = width;
 		this.height = height;
 
-		e.width = Math.round( width*ratio );
-		e.height = Math.round( height*ratio );
+		e.width = width*ratio | 0;
+		e.height = height*ratio | 0;
 		e.style.width = width+"px";
 		e.style.height = height+"px";
 
@@ -513,13 +513,12 @@ var Game = (function()
 
 			var a = obj.angle,
 				d = obj.distance,
-				x = Math.round( centerX+d*Math.cos( a ) ),
-				y = Math.round( centerY+d*Math.sin( a ) ),
+				x = (centerX+d*Math.cos( a )) | 0,
+				y = (centerY+d*Math.sin( a )) | 0,
 				s = uptime < 10000 ?
-					Math.round( f.w+
-						(canvas.width-f.w)/10000*uptime ) :
+					(f.w+(canvas.width-f.w)/10000*uptime) | 0 :
 					canvas.width,
-				hs = Math.round( s/2 );
+				hs = s/2 | 0;
 
 			obj.x = x-hs;
 			obj.y = y-hs;
@@ -589,7 +588,7 @@ var Game = (function()
 		{
 			var inv = obj.inventory;
 
-			x = Math.round( centerX+obj.x );
+			x = centerX+obj.x | 0;
 
 			if( inv.helmet && inv.suit )
 				f = obj.frames[5];
@@ -598,7 +597,9 @@ var Game = (function()
 			else if( inv.suit )
 				f = obj.frames[4];
 			else
-				f = obj.frames[fireBoostersUntil ? 0 :
+				f = obj.frames[
+					fireBoostersUntil ?
+					0 :
 					Math.round( now/500 )%3];
 		}
 
@@ -814,7 +815,7 @@ var Game = (function()
 	{
 		var stationFrame = objects.station.res[0],
 			stationWidth = stationFrame.w,
-			scaledWidth = Math.round( canvas.width*.9 ),
+			scaledWidth = canvas.width*.9 | 0,
 			scaledHeight = stationFrame.h/stationWidth*scaledWidth;
 
 		if( scaledWidth > stationWidth )
@@ -825,14 +826,14 @@ var Game = (function()
 
 		// sample atlas down if necessary
 		{
-			var s = Math.round( atlas.width/stationWidth*scaledWidth );
+			var s = (atlas.width/stationWidth*scaledWidth) | 0;
 
 			if( s > atlas.width )
 				s = atlas.width;
 
 			var c = document.createElement( "canvas" );
 
-			c.height = Math.round( (atlas.height/atlas.width)*s );
+			c.height = (atlas.height/atlas.width)*s | 0;
 			c.width = s;
 
 			var ctx = c.getContext( "2d" );
@@ -855,22 +856,22 @@ var Game = (function()
 			{
 				var of = obj.res[n],
 					f = {
-						x: Math.round( of.x/xf ),
-						y: Math.round( of.y/yf ),
-						w: Math.round( of.w/xf ),
-						h: Math.round( of.h/yf )
+						x: of.x/xf | 0,
+						y: of.y/yf | 0,
+						w: of.w/xf | 0,
+						h: of.h/yf | 0
 					};
 
-				f.cx = Math.round( f.w/2 );
-				f.cy = Math.round( f.h/2 );
+				f.cx = f.w/2 | 0;
+				f.cy = f.h/2 | 0;
 
 				obj.frames[n] = f;
 			}
 
 			if( obj.ox !== "undefined" )
 			{
-				obj.x = Math.round( obj.ox/xf );
-				obj.y = Math.round( obj.oy/yf );
+				obj.x = obj.ox/xf | 0;
+				obj.y = obj.oy/yf | 0;
 			}
 		}
 
@@ -890,10 +891,10 @@ var Game = (function()
 		backBuffer.width = width;
 		backBuffer.height = height;
 
-		centerX = Math.round( width/2 );
-		centerY = Math.round( height/2 );
-		floating = Math.round( min*.005 );
-		objects.venus.distance = Math.round( min*.25 );
+		centerX = width/2 | 0;
+		centerY = height/2 | 0;
+		floating = min*.005 | 0;
+		objects.venus.distance = min*.25 | 0;
 
 		scaleAtlas();
 	}
