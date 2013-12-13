@@ -167,7 +167,7 @@ Source on
 var Canvas;
 (function()
 {
-	var ratio;
+	var ratio = 0;
 
 	Canvas = function()
 	{
@@ -185,6 +185,11 @@ var Canvas;
 				ctx.oBackingStorePixelRatio ||
 				ctx.backingStorePixelRatio ||
 				1)
+	};
+
+	Canvas.prototype.getRatio = function()
+	{
+		return ratio;
 	};
 
 	Canvas.prototype.resize = function( width, height )
@@ -458,6 +463,7 @@ var Game = (function()
 		ctx,
 		centerX,
 		centerY,
+		clickRadius,
 		start,
 		now,
 		last,
@@ -706,6 +712,8 @@ var Game = (function()
 				obj.top = y-f.cy;
 				obj.right = obj.left+f.w;
 				obj.bottom = obj.top+f.h;
+				obj.centerX = x;
+				obj.centerY = y;
 
 				drawSprite( f, obj.left, obj.top );
 			}
@@ -745,26 +753,47 @@ var Game = (function()
 
 		var pos = canvas.pos( ev ),
 			x = pos.x,
-			y = pos.y;
+			y = pos.y,
+			closest = clickRadius,
+			chosen = null;
 
 		for( var name in objects )
 		{
 			var obj = objects[name];
 
-			if( !obj.taken &&
-				obj.left !== "undefined" &&
+			if( obj.taken )
+				continue;
+
+			if( obj.left !== "undefined" &&
 				x >= obj.left &&
 				x <= obj.right &&
 				y >= obj.top &&
 				y <= obj.bottom )
 			{
-				var a = objects.astronaut;
-
-				a.grab = obj;
-				a.grabDist = obj.x-a.x;
-
+				chosen = obj;
 				break;
 			}
+
+			if( !obj.centerX )
+				continue;
+
+			var dx = x-obj.centerX,
+				dy = y-obj.centerY,
+				d = Math.sqrt( dx*dx + dy*dy );
+
+			if( d < closest )
+			{
+				closest = d;
+				chosen = obj;
+			}
+		}
+
+		if( chosen )
+		{
+			var a = objects.astronaut;
+
+			a.grab = chosen;
+			a.grabDist = chosen.x-a.x;
 		}
 
 		ev.preventDefault();
@@ -879,11 +908,12 @@ var Game = (function()
 
 		canvas.resize( width, height );
 
-		backBuffer.width = width;
-		backBuffer.height = height;
+		backBuffer.width = canvas.domElement.width;
+		backBuffer.height = canvas.domElement.height;
 
 		centerX = width/2 | 0;
 		centerY = height/2 | 0;
+		clickRadius = min*.1 | 0;
 		floating = min*.005 | 0;
 		objects.venus.distance = min*.25 | 0;
 
