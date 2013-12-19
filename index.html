@@ -9,26 +9,26 @@
 body
 {
 	background: #000;
-	margin: 0;
-	font: 1.5rem monospace; color: #fff;
-	overflow: hidden;
+	margin: 0; padding: 0;
+	font: 12pt monospace; color: #fff;
+	letter-spacing: .01em;
 	text-align: center;
+	overflow: hidden;
 }
 
 #Intro
 {
-	padding: 2rem;
-	line-height: 150%;
+	padding: 2em;
 }
 
 #StartButton
 {
 	display: block;
-	margin: 2rem auto; padding: 1rem 1.2rem;
-	width: 10rem;
+	margin: 0 auto; padding: 1em 1.2em;
+	width: 10em;
 	text-decoration: none;
-	border: .2rem solid #fff;
-	border-radius: .1rem;
+	border: .2em solid #fff;
+	border-radius: .1em;
 }
 
 a
@@ -36,12 +36,12 @@ a
 	color: #bbb;
 }
 
-a.Loading
+.Loading
 {
 	color: #fff;
 }
 
-a.Ready
+.Ready
 {
 	background: #fff;
 	color: #000;
@@ -55,69 +55,64 @@ small
 canvas
 {
 	z-index: 0;
+	position: fixed;
+	left: 0; top: 0;
 }
 
-#Message
+.Hud
 {
-	position: absolute;
-	padding: 1rem 0;
+	position: fixed;
+	padding: 1em 0;
 	left: 0; top: 0;
 	width: 100%;
 	z-index: 1;
 }
 
-#Success
+.Message
 {
-	display: none;
-	position: absolute;
-	left: 0; top: 0;
-	width: 100%; height: 100%;
-	z-index: 3;
-}
-
-#Success:after
-{
-	content: "";
-	position: absolute;
+	position: fixed;
 	top: 0; left: 0;
-	bottom: 0; right: 0;
+	z-index: 2;
+	width: 100%; height: 100%;
 	background: #000;
 	opacity: .8;
-	z-index: -1;
+	line-height: 1.5;
+	text-align: center;
+	overflow: auto;
 }
 
-#Success div
+.Message p
 {
-	max-width: 40rem;
-	margin: 0 auto; padding: 1rem;
+	margin: 0 auto; padding: 1em;
+	max-width: 40em;
 }
 
-@media screen and (max-width: 800px)
+.Message img
+{
+	opacity: 1.0;
+}
+
+@media screen and (max-width: 640px)
 {
 	body
 	{
-		font-size: .75rem;
+		font-size: 80%;
 	}
 
 	#Intro
 	{
-		padding: 1rem;
+		padding: 1em;
 	}
 
 	#StartButton
 	{
-		margin: 1rem auto; padding: .5rem .6rem;
+		margin: 1em auto; padding: .5em .6em;
 	}
 
-	#Success img
+	.Message img
 	{
 		width: 50%;
 		height: 50%;
-	}
-
-	#Success h2
-	{
-		margin-top: 0;
 	}
 }
 
@@ -125,17 +120,17 @@ canvas
 {
 	body
 	{
-		font-size: .6rem;
+		font-size: 70%;
 	}
 
 	#Intro
 	{
-		padding: .25rem;
+		padding: .25em;
 	}
 
 	#StartButton
 	{
-		margin: .5rem auto; padding: .25rem .3rem;
+		margin: .5em auto; padding: .25em .3em;
 	}
 }
 
@@ -155,805 +150,11 @@ canvas
 Enhanced post-compo version. Original
 <a href="http://www.ludumdare.com/compo/ludum-dare-27/?uid=19466">here</a>.<br/>
 Source on
-<a href="http://github.com/markusfisch/TenSecondsToVenus"
-	>GitHub</a>.</small></p>
+<a href="http://github.com/markusfisch/TenSecondsToVenus">GitHub</a>.</small></p>
 </div>
-<div id="Message"></div>
-<div id="Success"></div>
 <script>
 
 "use strict";
-
-var Canvas;
-(function()
-{
-	var ratio = 0;
-
-	Canvas = function()
-	{
-		var e = document.createElement( "canvas" ),
-			ctx = e.getContext( "2d" );
-
-		this.domElement = e;
-		this.context = ctx;
-
-		ratio = ratio ||
-			(window.devicePixelRatio || 1)/
-			(ctx.webkitBackingStorePixelRatio ||
-				ctx.mozBackingStorePixelRatio ||
-				ctx.msBackingStorePixelRatio ||
-				ctx.oBackingStorePixelRatio ||
-				ctx.backingStorePixelRatio ||
-				1)
-	};
-
-	Canvas.prototype.getRatio = function()
-	{
-		return ratio;
-	};
-
-	Canvas.prototype.resize = function( width, height )
-	{
-		var e = this.domElement;
-
-		this.width = width;
-		this.height = height;
-
-		e.width = width*ratio | 0;
-		e.height = height*ratio | 0;
-		e.style.width = width+"px";
-		e.style.height = height+"px";
-
-		this.context.setTransform(
-			ratio,
-			0,
-			0,
-			ratio,
-			0,
-			0 );
-	};
-
-	Canvas.prototype.pos = function( ev )
-	{
-		var x,
-			y;
-
-		if( ev.touches )
-		{
-			var t = ev.touches[0];
-
-			x = t.pageX;
-			y = t.pageY;
-		}
-		else if( document.all )
-		{
-			x = event.clientX;
-			y = event.clientY;
-		}
-		else
-		{
-			x = ev.pageX;
-			y = ev.pageY;
-		}
-
-		return { x: x, y: y }
-	};
-}( Canvas ));
-
-var Game = (function()
-{
-	var objects = {
-			venus: {
-				draw: drawVenus,
-				offset: 0,
-				distance: 0,
-				angle: 0,
-				res: [{/*venus*/x:0,y:1198,w:516,h:516}] },
-			station: {
-				draw: drawStation,
-				res: [
-					{/*station*/x:0,y:921,w:1028,h:277},
-					{/*station_burned*/x:0,y:644,w:1028,h:277}] },
-			boosterTop: {
-				ox: -370,
-				oy: -168,
-				draw: drawBooster,
-				res: [{/*booster_top*/x:961,y:1267,w:63,h:67}] },
-			boosterBottom: {
-				ox: 250,
-				oy: 162,
-				draw: drawBooster,
-				res: [{/*booster_bottom*/x:961,y:1198,w:63,h:69}] },
-			water: {
-				use: function()
-				{
-					say( "It's getting hot so why not drink something? "+
-						"Gulp, gulp, ahh, better." );
-					return false;
-				},
-				ox: 116,
-				oy: -39,
-				index: 0,
-				res: [{/*item_water*/x:825,y:1559,w:23,h:36}] },
-			food: {
-				use: function()
-				{
-					say( "Yam, yam. Now to more important things." );
-					return true;
-				},
-				ox: -91,
-				oy: -11,
-				index: 0,
-				res: [{/*item_food*/x:735,y:1517,w:48,h:37}] },
-			medpack: {
-				use: function()
-				{
-					say( "Always good to have." );
-					return true;
-				},
-				ox: 156,
-				oy: 33,
-				index: 0,
-				res: [{/*item_medpack*/x:680,y:1517,w:55,h:42}] },
-			screwdriver: {
-				use: function()
-				{
-					var m;
-
-					if( objects.astronaut.inventory.computer )
-						m = "That doesn't work, it's too big to "+
-							"fix the computer";
-					else
-						m = "Got it, what now?";
-
-					say( m );
-					return true;
-				},
-				ox: -71,
-				oy: 27,
-				index: 0,
-				res: [{/*item_screwdriver*/x:783,y:1517,w:39,h:26}] },
-			pen: {
-				use: function()
-				{
-					if( objects.astronaut.inventory.computer )
-					{
-						objects.astronaut.inventory.pen = true;
-						fireBoosters();
-						say( "Wait, the pen fits in that restart "+
-							"hole of the computer, YES!" );
-						return true;
-					}
-
-					say( "What good is a pen right now? "+
-						"Make a testament?" );
-					return false;
-				},
-				ox: -8,
-				oy: 24,
-				index: 0,
-				res: [{/*item_pen*/x:800,y:1559,w:25,h:38}] },
-			manual: {
-				use: function()
-				{
-					say( "Well, lets see, something about boosters..." );
-					return true;
-				},
-				ox: -142,
-				oy: 28,
-				index: 0,
-				res: [{/*item_manual*/x:680,y:1559,w:43,h:47}] },
-			helmet: {
-				use: function()
-				{
-					objects.astronaut.inventory.helmet = true;
-
-					if( !objects.astronaut.inventory.suit )
-						say( "Where's my suit?" );
-					else
-						say( "Ok, now I'm safe, I guess" );
-
-					return true;
-				},
-				ox: -140,
-				oy: -45,
-				index: 0,
-				res: [{/*item_helmet*/x:957,y:1419,w:46,h:51}] },
-			suit: {
-				use: function()
-				{
-					objects.astronaut.inventory.suit = true;
-
-					if( !objects.astronaut.inventory.helmet )
-						say( "Where's my helmet?" );
-					else
-						say( "That's a good idea!" );
-
-					return true;
-				},
-				ox: 54,
-				oy: -13,
-				index: 0,
-				res: [{/*item_suit*/x:516,y:1517,w:79,h:136}] },
-			sleepbag: {
-				use: function()
-				{
-					say( "Got it." );
-					return true;
-				},
-				ox: -340,
-				oy: 15,
-				index: 0,
-				res: [{/*item_sleepbag*/x:595,y:1517,w:85,h:99}] },
-			wires: {
-				use: function()
-				{
-					say( "Got them. They are red." );
-					return true;
-				},
-				ox: -297,
-				oy: 15,
-				index: 0,
-				res: [{/*item_wires*/x:723,y:1559,w:32,h:47}] },
-			lamp: {
-				use: function()
-				{
-					say( "Ok, now I have light!" );
-					objects.lamp.index = 1;
-				},
-				ox: -28,
-				oy: -55,
-				index: 0,
-				res: [
-					{/*item_lamp*/x:848,y:1559,w:31,h:31},
-					{/*item_lamp_on*/x:755,y:1559,w:45,h:45}] },
-			camera: {
-				use: function()
-				{
-					say( "Should I take a picture or what?" );
-					return true;
-				},
-				ox: -333,
-				oy: -62,
-				index: 0,
-				res: [{/*item_camera*/x:879,y:1559,w:29,h:29}] },
-			computer: {
-				use: function()
-				{
-					var m;
-
-					objects.astronaut.inventory.computer = true;
-
-					if( objects.astronaut.inventory.pen )
-					{
-						fireBoosters();
-						m = "Oh, the pen fits in that restart hole, YEAH!";
-					}
-					else
-						m = "I could start the boosters! Oh no! It's BROKEN!";
-
-					say( m );
-					return true;
-				},
-				ox: 160,
-				oy: -26,
-				index: 0,
-				res: [{/*item_computer*/x:957,y:1470,w:46,h:39}] },
-			astronaut: {
-				draw: drawAstronaut,
-				ox: -248,
-				oy: 0,
-				index: 0,
-				res: [
-					{/*astronaut0*/x:663,y:1363,w:147,h:153},
-					{/*astronaut1*/x:810,y:1363,w:147,h:152},
-					{/*astronaut2*/x:516,y:1363,w:147,h:154},
-					{/*astronaut_helmet*/x:665,y:1198,w:147,h:162},
-					{/*astronaut_suit*/x:812,y:1198,w:149,h:156},
-					{/*astronaut_suited*/x:516,y:1198,w:149,h:165}] },
-			heat: {
-				draw: drawHeat,
-				res: [
-					{/*heat*/x:0,y:335,w:1056,h:309},
-					{/*heat_burning*/x:0,y:0,w:1080,h:335}] }
-		},
-		scaledAtlas,
-		canvas,
-		backBuffer,
-		ctx,
-		centerX,
-		centerY,
-		clickRadius,
-		start,
-		now,
-		last,
-		uptime,
-		elapsed,
-		moving,
-		floating,
-		success = false,
-		killed = false,
-		fireBoostersUntil = 0,
-		messageElement,
-		messageGoodUntil = 0,
-		venusFrame = objects.venus.res[0];
-
-	function fireBoosters()
-	{
-		fireBoostersUntil = now+2000;
-	}
-
-	function say( what )
-	{
-		messageGoodUntil = new Date().getTime()+4000;
-		messageElement.innerHTML = what;
-	}
-
-	function drawVenus( obj )
-	{
-		var f = venusFrame;
-
-		if( !fireBoostersUntil ||
-			now < fireBoostersUntil )
-		{
-			var m = .628;
-
-			if( fireBoostersUntil )
-				m *= 1/2000*(fireBoostersUntil-now);
-
-			obj.angle += m*elapsed;
-
-			var a = obj.angle,
-				d = obj.distance,
-				x = (centerX+d*Math.cos( a )) | 0,
-				y = (centerY+d*Math.sin( a )) | 0,
-				s = uptime < 10000 ?
-					(f.w+(canvas.width-f.w)/10000*uptime) | 0 :
-					canvas.width,
-				hs = s/2 | 0;
-
-			obj.x = x-hs;
-			obj.y = y-hs;
-			obj.size = s;
-		}
-
-		ctx.drawImage(
-			atlas,
-			f.x,
-			f.y,
-			f.w,
-			f.h,
-			obj.x,
-			obj.y,
-			obj.size,
-			obj.size );
-	}
-
-	function drawStation( obj )
-	{
-		var f = obj.frames[killed ? 1 : 0];
-
-		drawSprite( f, centerX-f.cx, centerY-f.cy );
-	}
-
-	function drawBooster( obj )
-	{
-		if( !fireBoostersUntil ||
-			fireBoostersUntil < now )
-			return;
-
-		var f = obj.frames[0],
-			x = centerX+obj.x,
-			y = centerY+obj.y;
-
-		drawSprite( f, x-f.cx, y-f.cy );
-	}
-
-	function drawAstronaut( obj )
-	{
-		if( killed )
-			return;
-
-		var f,
-			x,
-			y = centerY+obj.y+Math.sin( now*.005 )*floating;
-
-		if( obj.grab &&
-			obj.grabDist != 0 )
-		{
-			var g = obj.grab;
-
-			obj.x += obj.grabDist > 0 ? moving : -moving;
-
-			if( (obj.grabDist > 0 && obj.x >= g.x) ||
-				(obj.grabDist < 0 && obj.x <= g.x) )
-			{
-				if( g.use )
-					g.taken = g.use();
-
-				obj.x = g.x;
-				obj.grab = null;
-			}
-		}
-
-		// pick sprite
-		{
-			var inv = obj.inventory;
-
-			x = centerX+obj.x | 0;
-
-			if( inv.helmet && inv.suit )
-				f = obj.frames[5];
-			else if( inv.helmet )
-				f = obj.frames[3];
-			else if( inv.suit )
-				f = obj.frames[4];
-			else
-				f = obj.frames[
-					fireBoostersUntil ?
-					0 :
-					Math.round( now/500 )%3];
-		}
-
-		drawSprite( f, x-f.cx, y-f.cy );
-	}
-
-	function drawHeat( obj )
-	{
-		var b = 1;
-
-		if( fireBoostersUntil )
-		{
-			if( fireBoostersUntil > now )
-				b = 1/2000*(fireBoostersUntil-now);
-			else
-				b = 0;
-		}
-
-		if( uptime < 10000 )
-		{
-			var f = obj.frames[0],
-				m = 1/10000*uptime;
-
-			m *= b;
-
-			ctx.globalAlpha = m;
-			drawSprite( f, centerX-f.cx, centerY-f.cy );
-			ctx.globalAlpha = 1;
-		}
-
-		if( uptime > 9000 &&
-			uptime < 12000 )
-		{
-			var f = obj.frames[1],
-				m = 1/3000*(uptime-9000);
-
-			m *= b;
-
-			ctx.globalAlpha = Math.min( m, 1-m )*2;
-			drawSprite( f, centerX-f.cx, centerY-f.cy );
-			ctx.globalAlpha = 1;
-		}
-	}
-
-	function drawSprite( f, x, y )
-	{
-		ctx.drawImage(
-			scaledAtlas,
-			f.x,
-			f.y,
-			f.w,
-			f.h,
-			x,
-			y,
-			f.w,
-			f.h );
-	}
-
-	function draw()
-	{
-		now = new Date().getTime();
-		uptime = now-start;
-		elapsed = (now-last)/1000;
-		last = now;
-
-		ctx.fillStyle = '#000';
-		ctx.fillRect(
-			0,
-			0,
-			canvas.width,
-			canvas.height );
-
-		if( uptime > 10000 &&
-			!killed &&
-			!fireBoostersUntil )
-		{
-			say( "AAAARGHHHH!!" );
-			killed = true;
-		}
-
-		if( !success &&
-			fireBoostersUntil &&
-			fireBoostersUntil < now )
-		{
-			var e = document.getElementById( "Success" );
-
-			e.innerHTML =
-				'<div>'+
-				'<h2>You made it!</h2>'+
-				'<p>As sole survivor of that '+
-				'<em>Unfortunate Thing Back Then Over Venus</em> '+
-				'you are awarded the Venus Special Achievement patch:</p>'+
-				'<img '+
-					'src="patch.svg" '+
-					'alt="Venus Special Achievement patch"/>'+
-				'</div>';
-
-			e.style.display = "block";
-			success = true;
-		}
-
-		for( var name in objects )
-		{
-			var obj = objects[name];
-
-			if( obj.draw )
-				obj.draw( obj );
-			else if(
-				!killed &&
-				!obj.taken )
-			{
-				var f = obj.frames[obj.index],
-					x = centerX+obj.x,
-					y = centerY+obj.y+Math.sin(
-						now*.005+obj.x )*floating;
-
-				obj.left = x-f.cx;
-				obj.top = y-f.cy;
-				obj.right = obj.left+f.w;
-				obj.bottom = obj.top+f.h;
-				obj.centerX = x;
-				obj.centerY = y;
-
-				drawSprite( f, obj.left, obj.top );
-			}
-		}
-
-		if( messageGoodUntil &&
-			messageGoodUntil < now )
-		{
-			messageGoodUntil = 0;
-			messageElement.innerHTML = "";
-		}
-
-		canvas.context.drawImage( backBuffer, 0, 0 );
-	}
-
-	function run()
-	{
-		draw();
-		requestAnimFrame( run );
-	}
-
-	function click( ev )
-	{
-		if( fireBoostersUntil )
-		{
-			ev.preventDefault();
-			return false;
-		}
-		else if( killed  )
-		{
-			if( uptime > 12000 )
-				reset();
-
-			ev.preventDefault();
-			return false;
-		}
-
-		var pos = canvas.pos( ev ),
-			x = pos.x,
-			y = pos.y,
-			closest = clickRadius,
-			chosen = null;
-
-		for( var name in objects )
-		{
-			var obj = objects[name];
-
-			if( obj.taken )
-				continue;
-
-			if( obj.left !== "undefined" &&
-				x >= obj.left &&
-				x <= obj.right &&
-				y >= obj.top &&
-				y <= obj.bottom )
-			{
-				chosen = obj;
-				break;
-			}
-
-			if( !obj.centerX )
-				continue;
-
-			var dx = x-obj.centerX,
-				dy = y-obj.centerY,
-				d = Math.sqrt( dx*dx + dy*dy );
-
-			if( d < closest )
-			{
-				closest = d;
-				chosen = obj;
-			}
-		}
-
-		if( chosen )
-		{
-			var a = objects.astronaut;
-
-			a.grab = chosen;
-			a.grabDist = chosen.x-a.x;
-		}
-
-		ev.preventDefault();
-		return false;
-	}
-
-	function reset()
-	{
-		start = new Date().getTime();
-		last = start-16;
-		success = false;
-		killed = false;
-		fireBoostersUntil = 0;
-		messageGoodUntil = 0;
-
-		for( var name in objects )
-		{
-			var obj = objects[name];
-
-			if( obj.ox !== "undefined" )
-				obj.taken = false;
-		}
-
-		// reset lamp
-		objects.lamp.index = 0;
-
-		// reset astronaut
-		{
-			var a = objects.astronaut;
-
-			a.grab = null;
-			a.inventory = {};
-			a.x = a.startX;
-			a.y = a.startY;
-		}
-	}
-
-	function scaleAtlas()
-	{
-		var stationFrame = objects.station.res[0],
-			stationWidth = stationFrame.w,
-			scaledWidth = canvas.width*.9 | 0,
-			scaledHeight = stationFrame.h/stationWidth*scaledWidth;
-
-		if( scaledWidth > stationWidth )
-		{
-			scaledWidth = stationWidth;
-			scaledHeight = stationFrame.h;
-		}
-
-		// sample atlas down if necessary
-		{
-			var s = (atlas.width/stationWidth*scaledWidth) | 0;
-
-			if( s > atlas.width )
-				s = atlas.width;
-
-			var c = document.createElement( "canvas" );
-
-			c.height = (atlas.height/atlas.width)*s | 0;
-			c.width = s;
-
-			var ctx = c.getContext( "2d" );
-			ctx.drawImage( atlas, 0, 0, c.width, c.height );
-
-			scaledAtlas = c;
-		}
-
-		var xf = stationFrame.w/scaledWidth,
-			yf = stationFrame.h/scaledHeight;
-
-		for( var name in objects )
-		{
-			var obj = objects[name],
-				res = obj.res;
-
-			obj.frames = {};
-
-			for( var n = res.length; n--; )
-			{
-				var of = obj.res[n],
-					f = {
-						x: of.x/xf | 0,
-						y: of.y/yf | 0,
-						w: of.w/xf | 0,
-						h: of.h/yf | 0
-					};
-
-				f.cx = f.w/2 | 0;
-				f.cy = f.h/2 | 0;
-
-				obj.frames[n] = f;
-			}
-
-			if( obj.ox !== "undefined" )
-			{
-				obj.x = obj.ox/xf | 0;
-				obj.y = obj.oy/yf | 0;
-			}
-		}
-
-		moving = 10/xf;
-
-		var a = objects.astronaut;
-		a.startX = a.x;
-		a.startY = a.y;
-	}
-
-	function resize( width, height )
-	{
-		var min = Math.min( width, height );
-
-		canvas.resize( width, height );
-
-		backBuffer.width = canvas.domElement.width;
-		backBuffer.height = canvas.domElement.height;
-
-		centerX = width/2 | 0;
-		centerY = height/2 | 0;
-		clickRadius = min*.1 | 0;
-		floating = min*.005 | 0;
-		objects.venus.distance = min*.25 | 0;
-
-		scaleAtlas();
-	}
-
-	function create( width, height )
-	{
-		canvas = new Canvas();
-		messageElement = document.getElementById( "Message" );
-
-		backBuffer = document.createElement( "canvas" );
-		ctx = backBuffer.getContext( "2d" );
-
-		canvas.domElement.onmouseup = click;
-
-		if( "ontouchend" in document.documentElement )
-		{
-			canvas.domElement.ontouchend = click;
-			canvas.domElement.ontouchmove = function( ev )
-			{
-				ev.preventDefault();
-				return false;
-			};
-		}
-
-		reset();
-		resize( width, height );
-		run();
-
-		return canvas.domElement;
-	}
-
-	return {
-		resize: resize,
-		create: create
-	};
-}());
-
-var atlas;
 
 // shim layer with setTimeout fallback
 // see http://paulirish.com/2011/requestanimationframe-for-smart-animating/
@@ -973,50 +174,740 @@ window.requestAnimFrame =
 			16 );
 	};
 
+var objects = {
+		venus: {
+			draw: drawVenus,
+			offset: 0,
+			distance: 0,
+			angle: 0,
+			scale: 2,
+			res: [{/*venus*/x:0,y:1198,w:516,h:516}] },
+		station: {
+			draw: drawStation,
+			res: [
+				{/*station*/x:0,y:921,w:1028,h:277},
+				{/*station_burned*/x:0,y:644,w:1028,h:277}] },
+		boosterTop: {
+			ox: -370,
+			oy: -168,
+			draw: drawBooster,
+			res: [{/*booster_top*/x:961,y:1267,w:63,h:67}] },
+		boosterBottom: {
+			ox: 250,
+			oy: 162,
+			draw: drawBooster,
+			res: [{/*booster_bottom*/x:961,y:1198,w:63,h:69}] },
+		water: {
+			use: function()
+			{
+				say( "It's getting hot so why not drink something? "+
+					"Gulp, gulp, ahh, better." );
+				return false;
+			},
+			ox: 116,
+			oy: -39,
+			index: 0,
+			res: [{/*item_water*/x:825,y:1559,w:23,h:36}] },
+		food: {
+			use: function()
+			{
+				say( "Yam, yam. Now to more important things." );
+				return true;
+			},
+			ox: -91,
+			oy: -11,
+			index: 0,
+			res: [{/*item_food*/x:735,y:1517,w:48,h:37}] },
+		medpack: {
+			use: function()
+			{
+				say( "Always good to have." );
+				return true;
+			},
+			ox: 156,
+			oy: 33,
+			index: 0,
+			res: [{/*item_medpack*/x:680,y:1517,w:55,h:42}] },
+		screwdriver: {
+			use: function()
+			{
+				var m;
+
+				if( objects.astronaut.inventory.computer )
+					m = "That doesn't work, it's too big to "+
+						"fix the computer";
+				else
+					m = "Got it, what now?";
+
+				say( m );
+				return true;
+			},
+			ox: -71,
+			oy: 27,
+			index: 0,
+			res: [{/*item_screwdriver*/x:783,y:1517,w:39,h:26}] },
+		pen: {
+			use: function()
+			{
+				if( objects.astronaut.inventory.computer )
+				{
+					objects.astronaut.inventory.pen = true;
+					fireBoosters();
+					say( "Wait, the pen fits in that restart "+
+						"hole of the computer, YES!" );
+					return true;
+				}
+
+				say( "What good is a pen right now? "+
+					"Make a testament?" );
+				return false;
+			},
+			ox: -8,
+			oy: 24,
+			index: 0,
+			res: [{/*item_pen*/x:800,y:1559,w:25,h:38}] },
+		manual: {
+			use: function()
+			{
+				say( "Well, lets see, something about boosters..." );
+				return true;
+			},
+			ox: -142,
+			oy: 28,
+			index: 0,
+			res: [{/*item_manual*/x:680,y:1559,w:43,h:47}] },
+		helmet: {
+			use: function()
+			{
+				objects.astronaut.inventory.helmet = true;
+
+				if( !objects.astronaut.inventory.suit )
+					say( "Where's my suit?" );
+				else
+					say( "Ok, now I'm safe, I guess" );
+
+				return true;
+			},
+			ox: -140,
+			oy: -45,
+			index: 0,
+			res: [{/*item_helmet*/x:957,y:1419,w:46,h:51}] },
+		suit: {
+			use: function()
+			{
+				objects.astronaut.inventory.suit = true;
+
+				if( !objects.astronaut.inventory.helmet )
+					say( "Where's my helmet?" );
+				else
+					say( "That's a good idea!" );
+
+				return true;
+			},
+			ox: 54,
+			oy: -13,
+			index: 0,
+			res: [{/*item_suit*/x:516,y:1517,w:79,h:136}] },
+		sleepbag: {
+			use: function()
+			{
+				say( "Got it." );
+				return true;
+			},
+			ox: -340,
+			oy: 15,
+			index: 0,
+			res: [{/*item_sleepbag*/x:595,y:1517,w:85,h:99}] },
+		wires: {
+			use: function()
+			{
+				say( "Got them. They are red." );
+				return true;
+			},
+			ox: -297,
+			oy: 15,
+			index: 0,
+			res: [{/*item_wires*/x:723,y:1559,w:32,h:47}] },
+		lamp: {
+			use: function()
+			{
+				say( "Ok, now I have light!" );
+				objects.lamp.index = 1;
+			},
+			ox: -28,
+			oy: -55,
+			index: 0,
+			res: [
+				{/*item_lamp*/x:848,y:1559,w:31,h:31},
+				{/*item_lamp_on*/x:755,y:1559,w:45,h:45}] },
+		camera: {
+			use: function()
+			{
+				say( "Should I take a picture or what?" );
+				return true;
+			},
+			ox: -333,
+			oy: -62,
+			index: 0,
+			res: [{/*item_camera*/x:879,y:1559,w:29,h:29}] },
+		computer: {
+			use: function()
+			{
+				var m;
+
+				objects.astronaut.inventory.computer = true;
+
+				if( objects.astronaut.inventory.pen )
+				{
+					fireBoosters();
+					m = "Oh, the pen fits in that restart hole, YEAH!";
+				}
+				else
+					m = "I could start the boosters! Oh no! It's BROKEN!";
+
+				say( m );
+				return true;
+			},
+			ox: 160,
+			oy: -26,
+			index: 0,
+			res: [{/*item_computer*/x:957,y:1470,w:46,h:39}] },
+		astronaut: {
+			draw: drawAstronaut,
+			ox: -248,
+			oy: 0,
+			index: 0,
+			res: [
+				{/*astronaut0*/x:663,y:1363,w:147,h:153},
+				{/*astronaut1*/x:810,y:1363,w:147,h:152},
+				{/*astronaut2*/x:516,y:1363,w:147,h:154},
+				{/*astronaut_helmet*/x:665,y:1198,w:147,h:162},
+				{/*astronaut_suit*/x:812,y:1198,w:149,h:156},
+				{/*astronaut_suited*/x:516,y:1198,w:149,h:165}] },
+		heat: {
+			draw: drawHeat,
+			res: [
+				{/*heat*/x:0,y:335,w:1056,h:309},
+				{/*heat_burning*/x:0,y:0,w:1080,h:335}] }
+	},
+	atlas,
+	canvas,
+	ctx,
+	ratio,
+	width,
+	height,
+	centerX,
+	centerY,
+	start,
+	now,
+	last,
+	uptime,
+	elapsed,
+	moving,
+	floating,
+	success = false,
+	killed = false,
+	fireBoostersUntil = 0,
+	hud,
+	hudGoodUntil = 0;
+
+function fireBoosters()
+{
+	fireBoostersUntil = now+2000;
+}
+
+function say( what )
+{
+	if( !hud )
+	{
+		hud = document.createElement( "div" );
+		hud.className = "Hud";
+		document.body.appendChild( hud );
+	}
+
+	hudGoodUntil = new Date().getTime()+4000;
+	hud.innerHTML = what;
+}
+
+function drawVenus( obj )
+{
+	var sprite = obj.sprites[0];
+
+	if( !fireBoostersUntil ||
+		now < fireBoostersUntil )
+	{
+		var m = .628;
+
+		if( fireBoostersUntil )
+			m *= 1/2000*(fireBoostersUntil-now);
+
+		obj.angle += m*elapsed;
+
+		var a = obj.angle,
+			d = obj.distance;
+
+		obj.x = (centerX+d*Math.cos( a )) | 0;
+		obj.y = (centerY+d*Math.sin( a )) | 0;
+	}
+
+	drawSprite( sprite, obj.x, obj.y );
+}
+
+function drawStation( obj )
+{
+	drawSprite(
+		obj.sprites[killed ? 1 : 0],
+		centerX,
+		centerY );
+}
+
+function drawBooster( obj )
+{
+	if( !fireBoostersUntil ||
+		fireBoostersUntil < now )
+		return;
+
+	drawSprite(
+		obj.sprites[0],
+		centerX+obj.x,
+		centerY+obj.y );
+}
+
+function drawAstronaut( obj )
+{
+	if( killed )
+		return;
+
+	var sprite,
+		x,
+		y = centerY+obj.y+Math.sin( now*.005 )*floating;
+
+	if( obj.grab &&
+		obj.grabDist != 0 )
+	{
+		var g = obj.grab;
+
+		obj.x += obj.grabDist > 0 ? moving : -moving;
+
+		if( (obj.grabDist > 0 && obj.x >= g.x) ||
+			(obj.grabDist < 0 && obj.x <= g.x) )
+		{
+			if( g.use )
+				g.taken = g.use();
+
+			obj.x = g.x;
+			obj.grab = null;
+		}
+	}
+
+	// pick sprite
+	{
+		var inv = obj.inventory;
+
+		x = centerX+obj.x | 0;
+
+		if( inv.helmet && inv.suit )
+			sprite = obj.sprites[5];
+		else if( inv.helmet )
+			sprite = obj.sprites[3];
+		else if( inv.suit )
+			sprite = obj.sprites[4];
+		else
+			sprite = obj.sprites[
+				fireBoostersUntil ?
+				0 :
+				Math.round( now/500 )%3];
+	}
+
+	drawSprite( sprite, x, y );
+}
+
+function drawHeat( obj )
+{
+	var b = 1;
+
+	if( fireBoostersUntil )
+	{
+		if( fireBoostersUntil > now )
+			b = 1/2000*(fireBoostersUntil-now);
+		else
+			b = 0;
+	}
+
+	if( uptime < 10000 )
+	{
+		var m = 1/10000*uptime;
+
+		m *= b;
+
+		ctx.globalAlpha = m;
+		drawSprite( obj.sprites[0], centerX, centerY );
+		ctx.globalAlpha = 1;
+	}
+
+	if( uptime > 9000 &&
+		uptime < 12000 )
+	{
+		var m = 1/3000*(uptime-9000);
+
+		m *= b;
+
+		ctx.globalAlpha = Math.min( m, 1-m )*2;
+		drawSprite( obj.sprites[1], centerX, centerY );
+		ctx.globalAlpha = 1;
+	}
+}
+
+function drawSprite( sprite, x, y )
+{
+	ctx.drawImage(
+		sprite,
+		x-sprite.centerX,
+		y-sprite.centerY );
+}
+
+function draw()
+{
+	now = new Date().getTime();
+	uptime = now-start;
+	elapsed = (now-last)/1000;
+	last = now;
+
+	ctx.clearRect( 0, 0, width, height );
+
+	if( uptime > 10000 &&
+		!killed &&
+		!fireBoostersUntil )
+	{
+		say( "AAAARGHHHH!!" );
+		killed = true;
+	}
+
+	if( !success &&
+		fireBoostersUntil &&
+		fireBoostersUntil < now )
+	{
+		var e = document.createElement( "div" );
+		e.className = "Message";
+		e.innerHTML =
+			'<h2>Well done!</h2>'+
+			'<img src="patch.svg" alt="Patch"/>';
+		document.body.appendChild( e );
+
+		success = true;
+	}
+
+	for( var name in objects )
+	{
+		var obj = objects[name];
+
+		if( obj.draw )
+			obj.draw( obj );
+		else if(
+			!killed &&
+			!obj.taken )
+		{
+			var sprite = obj.sprites[obj.index],
+				x = centerX+obj.x,
+				y = centerY+obj.y+Math.sin(
+					now*.005+obj.x )*floating;
+
+			obj.left = x-sprite.centerX;
+			obj.top = y-sprite.centerY;
+			obj.right = x+sprite.centerX;
+			obj.bottom = y+sprite.centerY;
+
+			ctx.drawImage( sprite, obj.left, obj.top );
+		}
+	}
+
+	if( hudGoodUntil &&
+		hudGoodUntil < now )
+	{
+		hudGoodUntil = 0;
+		hud.innerHTML = "";
+	}
+}
+
+function run()
+{
+	draw();
+	requestAnimFrame( run );
+}
+
+function click( ev )
+{
+	if( fireBoostersUntil )
+	{
+		ev.preventDefault();
+		return false;
+	}
+	else if( killed  )
+	{
+		if( uptime > 12000 )
+			reset();
+
+		ev.preventDefault();
+		return false;
+	}
+
+	var x,
+		y;
+
+	if( ev.touches )
+	{
+		var t = ev.touches[0];
+
+		x = t.pageX;
+		y = t.pageY;
+	}
+	else if( document.all )
+	{
+		x = event.clientX;
+		y = event.clientY;
+	}
+	else
+	{
+		x = ev.pageX;
+		y = ev.pageY;
+	}
+
+	x = x*ratio | 0;
+	y = y*ratio | 0;
+
+	for( var name in objects )
+	{
+		var obj = objects[name];
+
+		if( obj.taken )
+			continue;
+
+		if( typeof obj.left !== "undefined" &&
+			x >= obj.left &&
+			x <= obj.right &&
+			y >= obj.top &&
+			y <= obj.bottom )
+		{
+			var a = objects.astronaut;
+
+			a.grab = obj;
+			a.grabDist = obj.x-a.x;
+
+			break;
+		}
+	}
+
+	ev.preventDefault();
+	return false;
+}
+
+function reset()
+{
+	start = new Date().getTime();
+	last = start-16;
+	success = false;
+	killed = false;
+	fireBoostersUntil = 0;
+	hudGoodUntil = 0;
+
+	for( var name in objects )
+	{
+		var obj = objects[name];
+
+		if( typeof obj.ox !== "undefined" )
+			obj.taken = false;
+	}
+
+	// reset lamp
+	objects.lamp.index = 0;
+
+	// reset astronaut
+	{
+		var a = objects.astronaut;
+
+		a.grab = null;
+		a.inventory = {};
+		a.x = a.startX;
+		a.y = a.startY;
+	}
+}
+
+function scale( styleWidth )
+{
+	var scale,
+		ref = objects.heat.res[0].w;
+
+	if( styleWidth >= ref )
+		scale = 1;
+	else
+		scale = width/ref;
+
+	for( var name in objects )
+	{
+		var obj = objects[name],
+			res = obj.res;
+
+		obj.sprites = {};
+
+		for( var n = res.length; n--; )
+		{
+			var bounds = obj.res[n],
+				w = bounds.w*scale | 0,
+				h = bounds.h*scale | 0,
+				image,
+				context;
+
+			if( !(image = document.createElement( "canvas" )) ||
+				!(context = image.getContext( "2d" )) )
+				continue;
+
+			if( typeof obj.scale !== "undefined" )
+			{
+				w = w*obj.scale | 0;
+				h = h*obj.scale | 0;
+
+				// don't make sprites bigger than 3 megapixels
+				// (can only happen on high dpi displays)
+				// because that will slow down rendering on iOS
+				if( w*h > 3000000 )
+				{
+					h = (1200/w*h) | 0;
+					w = 1200;
+				}
+			}
+
+			image.width = w;
+			image.height = h;
+
+			image.centerX = w >> 1;
+			image.centerY = h >> 1;
+
+			context.drawImage(
+				atlas,
+				bounds.x,
+				bounds.y,
+				bounds.w,
+				bounds.h,
+				0,
+				0,
+				w,
+				h );
+
+			obj.sprites[n] = image;
+		}
+
+		if( typeof obj.ox !== "undefined" )
+		{
+			obj.x = Math.round( obj.ox*scale );
+			obj.y = Math.round( obj.oy*scale );
+		}
+	}
+
+	moving = 10*scale;
+
+	var a = objects.astronaut;
+	a.startX = a.x;
+	a.startY = a.y;
+}
+
+function resize()
+{
+	var styleWidth = window.innerWidth,
+		styleHeight = window.innerHeight;
+
+	if( width == styleWidth &&
+		height == styleHeight )
+		return;
+
+	width = styleWidth*ratio | 0;
+	height = styleHeight*ratio | 0;
+
+	canvas.width = width;
+	canvas.height = height;
+
+	canvas.style.width = styleWidth+"px";
+	canvas.style.height = styleHeight+"px";
+
+	centerX = width >> 1;
+	centerY = height >> 1;
+
+	var min = Math.min( width, height );
+	floating = min*.005 | 0;
+	objects.venus.distance = min*.25 | 0;
+
+	scale( styleWidth );
+}
+
+function init()
+{
+	if( !(canvas = document.createElement( "canvas" )) ||
+		!(ctx = canvas.getContext( "2d" )) )
+		return null;
+
+	ratio =
+		(window.devicePixelRatio || 1)/
+		(ctx.webkitBackingStorePixelRatio ||
+			ctx.mozBackingStorePixelRatio ||
+			ctx.msBackingStorePixelRatio ||
+			ctx.oBackingStorePixelRatio ||
+			ctx.backingStorePixelRatio ||
+			1)
+
+	window.onresize = resize;
+	resize();
+
+	canvas.onmouseup = click;
+
+	if( "ontouchend" in document.documentElement )
+	{
+		canvas.ontouchend = click;
+		canvas.ontouchmove = function( ev )
+		{
+			ev.preventDefault();
+			return false;
+		};
+	}
+
+	document.body.appendChild( canvas );
+
+	reset();
+	run();
+}
+
 function start()
 {
 	if( !atlas.complete )
 		return;
 
+	// load patch in background
+	var patch = new Image();
+	patch.src = "patch.png";
+
 	document.getElementById( "Intro" ).style.display = "none";
 
-	document.body.appendChild(
-		Game.create(
-			window.innerWidth,
-			window.innerHeight ) );
-
-	window.onresize = function()
-	{
-		Game.resize(
-			window.innerWidth,
-			window.innerHeight );
-	};
-
-	// start loading the badge in the background
-	var patch = new Image();
-	patch.src = "patch.svg";
+	init();
 }
 
-window.onload = function()
+function waitForAtlas()
 {
-	atlas = new Image();
-	atlas.src = "atlas.png";
-
-	function waitForAtlas()
+	if( !atlas )
 	{
-		if( !atlas.complete )
-		{
-			setTimeout( waitForAtlas, 1000 );
-			return;
-		}
-
-		var e = document.getElementById( "StartButton" );
-		e.className = "Ready";
-		e.innerHTML = "Ready!";
+		atlas = new Image();
+		atlas.src = "atlas.png";
 	}
 
-	waitForAtlas();
-};
+	if( !atlas.complete )
+	{
+		setTimeout( waitForAtlas, 500 );
+		return;
+	}
+
+	var e = document.getElementById( "StartButton" );
+	e.className = "Ready";
+	e.innerHTML = "Ready!";
+}
+
+window.onload = waitForAtlas;
 
 </script>
 </body>
