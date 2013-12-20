@@ -74,22 +74,26 @@ canvas
 	top: 0; left: 0;
 	z-index: 2;
 	width: 100%; height: 100%;
-	background: #000;
-	opacity: .8;
 	line-height: 1.5;
 	text-align: center;
 	overflow: auto;
 }
 
-.Message p
+.Message::after
+{
+	content: "";
+	position: absolute;
+	top: 0; left: 0;
+	bottom: 0; right: 0;
+	background: #000;
+	opacity: .8;
+	z-index: -1;
+}
+
+p
 {
 	margin: 0 auto; padding: 1em;
 	max-width: 40em;
-}
-
-.Message img
-{
-	opacity: 1.0;
 }
 
 @media screen and (max-width: 640px)
@@ -111,8 +115,8 @@ canvas
 
 	.Message img
 	{
-		width: 50%;
-		height: 50%;
+		width: 128px;
+		height: 128px;
 	}
 }
 
@@ -188,12 +192,12 @@ var objects = {
 				{/*station*/x:0,y:921,w:1028,h:277},
 				{/*station_burned*/x:0,y:644,w:1028,h:277}] },
 		boosterTop: {
-			ox: -370,
+			ox: -371,
 			oy: -168,
 			draw: drawBooster,
 			res: [{/*booster_top*/x:961,y:1267,w:63,h:67}] },
 		boosterBottom: {
-			ox: 250,
+			ox: 249,
 			oy: 162,
 			draw: drawBooster,
 			res: [{/*booster_bottom*/x:961,y:1198,w:63,h:69}] },
@@ -403,6 +407,7 @@ var objects = {
 	last,
 	uptime,
 	elapsed,
+	tolerance,
 	moving,
 	floating,
 	success = false,
@@ -675,26 +680,57 @@ function click( ev )
 	x = x*ratio | 0;
 	y = y*ratio | 0;
 
+	var chosen = null,
+		closest = tolerance;
+
 	for( var name in objects )
 	{
-		var obj = objects[name];
+		var obj = objects[name],
+			left = obj.left,
+			right = obj.right,
+			top = obj.top,
+			bottom = obj.bottom;
 
-		if( obj.taken )
+		if( obj.taken ||
+			typeof obj.left === "undefined" )
 			continue;
 
-		if( typeof obj.left !== "undefined" &&
-			x >= obj.left &&
-			x <= obj.right &&
-			y >= obj.top &&
-			y <= obj.bottom )
+		// pointer inside object rectangle
+		if( x >= left &&
+			x <= right &&
+			y >= top &&
+			y <= bottom )
 		{
-			var a = objects.astronaut;
-
-			a.grab = obj;
-			a.grabDist = obj.x-a.x;
-
+			chosen = obj;
 			break;
 		}
+
+		// find closest object edge to pointer
+		if( Math.abs( y-top ) < closest ||
+			Math.abs( y-bottom ) < closest )
+		{
+			var dl = Math.abs( x-left ),
+				dr = Math.abs( x-right );
+
+			if( dl < closest )
+			{
+				chosen = obj;
+				closest = dl;
+			}
+			else if( dr < closest )
+			{
+				chosen = obj;
+				closest = dr;
+			}
+		}
+	}
+
+	if( chosen )
+	{
+		var a = objects.astronaut;
+
+		a.grab = chosen;
+		a.grabDist = chosen.x-a.x;
 	}
 
 	ev.preventDefault();
@@ -735,7 +771,7 @@ function reset()
 function scale( styleWidth )
 {
 	var scale,
-		ref = objects.heat.res[0].w;
+		ref = objects.heat.res[1].w;
 
 	if( styleWidth >= ref )
 		scale = 1;
@@ -831,6 +867,8 @@ function resize()
 	centerX = width >> 1;
 	centerY = height >> 1;
 
+	tolerance = 24*ratio | 0;
+
 	var min = Math.min( width, height );
 	floating = min*.005 | 0;
 	objects.venus.distance = min*.25 | 0;
@@ -858,9 +896,9 @@ function init()
 
 	canvas.onmouseup = click;
 
-	if( "ontouchend" in document.documentElement )
+	if( "ontouchstart" in document.documentElement )
 	{
-		canvas.ontouchend = click;
+		canvas.ontouchstart = click;
 		canvas.ontouchmove = function( ev )
 		{
 			ev.preventDefault();
@@ -879,9 +917,9 @@ function start()
 	if( !atlas.complete )
 		return;
 
-	// load patch in background
+	// start loading patch in the background
 	var patch = new Image();
-	patch.src = "patch.png";
+	patch.src = "patch.svg";
 
 	document.getElementById( "Intro" ).style.display = "none";
 
