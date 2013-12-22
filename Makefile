@@ -1,4 +1,4 @@
-OBJECTS = *.html *.png *.svg
+OBJECTS = *.html *.png
 PRODUCTION = hhsw.de@ssh.strato.de:sites/TenSecondsToVenus/
 OPTIONS = --recursive \
 	--links \
