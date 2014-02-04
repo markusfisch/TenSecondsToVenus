@@ -13,4 +13,4 @@ production: atlas.png
 		$(PRODUCTION)
 
 atlas.png: svg/img/*
-	BORDER=2 PREFER_SMALLER=1 mkatlas svg/img/* | patchatlas index.html
+	BORDER=2 mkatlas svg/img/* | patchatlas index.html
