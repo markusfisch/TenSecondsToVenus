@@ -160,25 +160,17 @@ Source on
 
 "use strict";
 
-// shim layer with setTimeout fallback
-// see http://paulirish.com/2011/requestanimationframe-for-smart-animating/
-window.requestAnimFrame =
-	window.requestAnimationFrame ||
-	window.webkitRequestAnimationFrame ||
-	window.mozRequestAnimationFrame ||
-	window.oRequestAnimationFrame ||
-	window.msRequestAnimationFrame ||
-	function( callback, element )
-	{
-		window.setTimeout(
-			function()
-			{
-				callback( new Date().getTime() );
-			},
-			16 );
-	};
-
-var objects = {
+var requestAnimFrame =
+		window.webkitRequestAnimationFrame ||
+		window.mozRequestAnimationFrame ||
+		window.msRequestAnimationFrame ||
+		window.oRequestAnimationFrame ||
+		window.requestAnimationFrame ||
+		function( callback )
+		{
+			window.setTimeout( callback, 16 );
+		},
+	objects = {
 		venus: {
 			draw: drawVenus,
 			offset: 0,
@@ -406,7 +398,7 @@ var objects = {
 	now,
 	last,
 	uptime,
-	elapsed,
+	factor,
 	tolerance,
 	moving,
 	floating,
@@ -446,7 +438,7 @@ function drawVenus( obj )
 		if( fireBoostersUntil )
 			m *= 1/2000*(fireBoostersUntil-now);
 
-		obj.angle += m*elapsed;
+		obj.angle += m*factor;
 
 		var a = obj.angle,
 			d = obj.distance;
@@ -573,11 +565,6 @@ function drawSprite( sprite, x, y )
 
 function draw()
 {
-	now = new Date().getTime();
-	uptime = now-start;
-	elapsed = (now-last)/1000;
-	last = now;
-
 	ctx.clearRect( 0, 0, width, height );
 
 	if( uptime > 10000 &&
@@ -636,7 +623,13 @@ function draw()
 
 function run()
 {
+	now = new Date().getTime();
+	uptime = now-start;
+	factor = (now-last)/1000;
+	last = now;
+
 	draw();
+
 	requestAnimFrame( run );
 }
 
@@ -879,7 +872,7 @@ function resize()
 function init()
 {
 	if( !(canvas = document.createElement( "canvas" )) ||
-		!(ctx = canvas.getContext( "2d" )) )
+		!(ctx = canvas.getContext( "2d", { alpha: false } )) )
 		return null;
 
 	ratio =
