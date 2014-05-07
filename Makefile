@@ -1,16 +1,18 @@
-OBJECTS = *.html *.png *.ico
-PRODUCTION = hhsw.de@ssh.strato.de:sites/TenSecondsToVenus/
-OPTIONS = --recursive \
+HTDOCS = htdocs
+SPRITES = sprites
+WEBROOT = hhsw.de@ssh.strato.de:sites/TenSecondsToVenus/
+OPTIONS = \
+	--recursive \
 	--links \
 	--update \
 	--delete-after \
 	--times \
 	--compress
 
-production: atlas.png
+upload: atlas.png
 	rsync $(OPTIONS) \
-		$(OBJECTS) \
-		$(PRODUCTION)
+		$(HTDOCS)/* \
+		$(WEBROOT)
 
-atlas.png: svg/img/*
-	mkatlas svg/img/* | patchatlas index.html
+atlas: $(SPRITES)
+	cd $(HTDOCS) && mkatlas ../$(SPRITES)/* | patchatlas index.html
