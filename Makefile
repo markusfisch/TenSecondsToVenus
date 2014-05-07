@@ -1,4 +1,4 @@
-OBJECTS = *.html *.png
+OBJECTS = *.html *.png *.ico
 PRODUCTION = hhsw.de@ssh.strato.de:sites/TenSecondsToVenus/
 OPTIONS = --recursive \
 	--links \
@@ -13,4 +13,4 @@ production: atlas.png
 		$(PRODUCTION)
 
 atlas.png: svg/img/*
-	BORDER=2 mkatlas svg/img/* | patchatlas index.html
+	mkatlas svg/img/* | patchatlas index.html
