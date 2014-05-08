@@ -618,7 +618,9 @@ function draw()
 		hudGoodUntil < now )
 	{
 		hudGoodUntil = 0;
-		hud.innerHTML = "";
+
+		if( hud )
+			hud.innerHTML = "";
 	}
 }
 
@@ -738,7 +740,7 @@ function reset()
 	success = false;
 	killed = false;
 	fireBoostersUntil = 0;
-	hudGoodUntil = 0;
+	hudGoodUntil = start;
 
 	for( var name in objects )
 	{
