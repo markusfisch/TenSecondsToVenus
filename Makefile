@@ -9,10 +9,10 @@ OPTIONS = \
 	--times \
 	--compress
 
-upload: atlas
+upload: $(HTDOCS)/atlas.png
 	rsync $(OPTIONS) \
 		$(HTDOCS)/* \
 		$(WEBROOT)
 
-atlas: $(SPRITES)
+$(HTDOCS)/atlas.png: $(SPRITES)
 	cd $(HTDOCS) && mkatlas ../$(SPRITES)/* | patchatlas index.html
