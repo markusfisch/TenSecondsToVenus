@@ -1,5 +1,5 @@
 HTDOCS = htdocs
-SPRITES = sprites
+SPRITES = sprites/*
 WEBROOT = hhsw.de@ssh.strato.de:sites/TenSecondsToVenus/
 OPTIONS = \
 	--recursive \
@@ -15,4 +15,4 @@ upload: $(HTDOCS)/atlas.png
 		$(WEBROOT)
 
 $(HTDOCS)/atlas.png: $(SPRITES)
-	cd $(HTDOCS) && mkatlas ../$(SPRITES)/* | patchatlas index.html
+	cd $(HTDOCS) && mkatlas ../$(SPRITES) | patchatlas index.html
