@@ -17,7 +17,8 @@ body
 	overflow: hidden;
 }
 
-#Intro
+#Intro,
+#Success
 {
 	padding: 2em;
 }
@@ -30,6 +31,19 @@ body
 	text-decoration: none;
 	border: .2em solid #fff;
 	border-radius: .1em;
+}
+
+@-webkit-keyframes slideIn { 0% { margin-top: -100% } 100% { margin-top: 0 } }
+@-moz-keyframes slideIn { 0% { margin-top: -100% } 100% { margin-top: 0 } }
+@-o-keyframes slideIn { 0% { margin-top: -100% } 100% { margin-top: 0 } }
+@keyframes slideIn { 0% { margin-top: -100% } 100% { margin-top: 0 } }
+
+#Success
+{
+	-webkit-animation: slideIn .5s;
+	-moz-animation: slideIn .5s;
+	-o-animation: slideIn .5s;
+	animation: slideIn .5s;
 }
 
 a
@@ -73,8 +87,8 @@ canvas
 {
 	position: fixed;
 	top: 0; left: 0;
+	bottom: 0; right: 0;
 	z-index: 2;
-	width: 100%; height: 100%;
 	line-height: 1.5;
 	text-align: center;
 	overflow: auto;
@@ -83,7 +97,7 @@ canvas
 .Message::after
 {
 	content: "";
-	position: absolute;
+	position: fixed;
 	top: 0; left: 0;
 	bottom: 0; right: 0;
 	background: #000;
@@ -104,7 +118,8 @@ p
 		font-size: 80%;
 	}
 
-	#Intro
+	#Intro,
+	#Success
 	{
 		padding: 1em;
 	}
@@ -128,7 +143,8 @@ p
 		font-size: 70%;
 	}
 
-	#Intro
+	#Intro,
+	#Success
 	{
 		padding: .25em;
 	}
@@ -136,6 +152,15 @@ p
 	#StartButton
 	{
 		margin: .5em auto; padding: .25em .3em;
+	}
+}
+
+@media screen and (max-height: 240px)
+{
+	.Message img
+	{
+		width: 64px;
+		height: 64px;
 	}
 }
 
@@ -162,11 +187,11 @@ Source on
 "use strict";
 
 var requestAnimFrame =
+		window.requestAnimationFrame ||
 		window.webkitRequestAnimationFrame ||
 		window.mozRequestAnimationFrame ||
 		window.msRequestAnimationFrame ||
 		window.oRequestAnimationFrame ||
-		window.requestAnimationFrame ||
 		function( callback )
 		{
 			window.setTimeout( callback, 16 );
@@ -195,10 +220,22 @@ var requestAnimFrame =
 			draw: drawBooster,
 			res: [{/*booster_bottom*/x:512,y:1493,w:59,h:65}] },
 		water: {
+			reset: function()
+			{
+				objects.water.empty = false;
+			},
 			use: function()
 			{
-				say( "It's getting hot so why not drink something? "+
-					"Gulp, gulp, ahh, better." );
+				if( !objects.water.empty )
+				{
+					objects.water.empty = true;
+					say( "Right, it's getting hot in here "+
+						"so why not drink something? "+
+						"Gulp, ahh, better." );
+				}
+				else
+					say( "It's empty." );
+
 				return false;
 			},
 			ox: 116,
@@ -206,10 +243,27 @@ var requestAnimFrame =
 			index: 0,
 			res: [{/*item_water*/x:1052,y:365,w:19,h:32}] },
 		food: {
+			reset: function()
+			{
+				objects.food.ration = 2;
+			},
 			use: function()
 			{
-				say( "Yam, yam. Now to more important things." );
-				return true;
+				switch( objects.food.ration-- )
+				{
+					case 2:
+						say( "Not exactly delicious but ok." );
+						break;
+					case 1:
+						say( "Once you got the taste... "+
+							"But now to more important things!" );
+						break;
+					default:
+						say( "Empty. But I guess I won't starve." );
+						break;
+				}
+
+				return false;
 			},
 			ox: -91,
 			oy: -11,
@@ -218,8 +272,12 @@ var requestAnimFrame =
 		medpack: {
 			use: function()
 			{
-				say( "Always good to have." );
-				return true;
+				if( objects.computer.used )
+					say( "The computer isn't ill, it's a machine." );
+				else
+					say( "I'm not hurt yet." );
+
+				return false;
 			},
 			ox: 156,
 			oy: 33,
@@ -228,16 +286,13 @@ var requestAnimFrame =
 		screwdriver: {
 			use: function()
 			{
-				var m;
-
-				if( objects.astronaut.inventory.computer )
-					m = "That doesn't work, it's too big to "+
-						"fix the computer";
+				if( objects.computer.used )
+					say( "That doesn't work, it's too big "+
+						"to fit in the reset hole." );
 				else
-					m = "Got it, what now?";
+					say( "What should I do with it?" );
 
-				say( m );
-				return true;
+				return false;
 			},
 			ox: -71,
 			oy: 27,
@@ -246,17 +301,18 @@ var requestAnimFrame =
 		pen: {
 			use: function()
 			{
-				if( objects.astronaut.inventory.computer )
+				if( objects.computer.used )
 				{
-					objects.astronaut.inventory.pen = true;
 					fireBoosters();
-					say( "Wait, the pen fits in that restart "+
-						"hole of the computer, YES!" );
+					say( "The pen fits in the reset "+
+						"hole of the computer! YES!" );
+
 					return true;
 				}
 
 				say( "What good is a pen right now? "+
 					"Make a testament?" );
+
 				return false;
 			},
 			ox: -8,
@@ -266,8 +322,16 @@ var requestAnimFrame =
 		manual: {
 			use: function()
 			{
-				say( "Well, lets see, something about boosters..." );
-				return true;
+				if( objects.computer.used )
+					say( "&quot;To reset the computer, "+
+						"you need to stick a pen in the "+
+						"reset hole.&quot;" );
+				else
+					say( "Well, lets see, it says "+
+						"something about firing "+
+						"the boosters..." );
+
+				return false;
 			},
 			ox: -142,
 			oy: 28,
@@ -276,12 +340,12 @@ var requestAnimFrame =
 		helmet: {
 			use: function()
 			{
-				objects.astronaut.inventory.helmet = true;
+				objects.helmet.used = true;
 
-				if( !objects.astronaut.inventory.suit )
-					say( "Where's my suit?" );
+				if( objects.suit.used )
+					say( "Ok, now I'm safe, I guess." );
 				else
-					say( "Ok, now I'm safe, I guess" );
+					say( "Where's my suit?" );
 
 				return true;
 			},
@@ -292,12 +356,12 @@ var requestAnimFrame =
 		suit: {
 			use: function()
 			{
-				objects.astronaut.inventory.suit = true;
+				objects.suit.used = true;
 
-				if( !objects.astronaut.inventory.helmet )
-					say( "Where's my helmet?" );
-				else
+				if( objects.helmet.used )
 					say( "That's a good idea!" );
+				else
+					say( "Where's my helmet?" );
 
 				return true;
 			},
@@ -308,28 +372,47 @@ var requestAnimFrame =
 		sleepbag: {
 			use: function()
 			{
-				say( "Got it." );
-				return true;
+				say( "Probably not the best time for a nap." );
+
+				return false;
 			},
 			ox: -340,
 			oy: 15,
 			index: 0,
 			res: [{/*item_sleepbag*/x:941,y:1343,w:81,h:95}] },
 		wires: {
-			use: function()
+			use: function( obj )
 			{
-				say( "Got them. They are red." );
-				return true;
+				if( objects.computer.used )
+					say( "No, that doesn't work." );
+				else
+					say( "They are red." );
+
+				return false;
 			},
 			ox: -297,
 			oy: 15,
 			index: 0,
 			res: [{/*item_wires*/x:1024,y:947,w:28,h:43}] },
 		lamp: {
+			reset: function()
+			{
+				objects.lamp.index = 0;
+			},
 			use: function()
 			{
-				say( "Ok, now I have light!" );
-				objects.lamp.index = 1;
+				if( !objects.lamp.index )
+				{
+					objects.lamp.index = 1;
+					say( "Ok, now I have light!" );
+				}
+				else if( objects.computer.used )
+					say( "There's a tiny reset hole on "+
+						"the computer!" );
+				else
+					say( "It's on." );
+
+				return false;
 			},
 			ox: -28,
 			oy: -55,
@@ -341,7 +424,8 @@ var requestAnimFrame =
 			use: function()
 			{
 				say( "Should I take a picture or what?" );
-				return true;
+
+				return false;
 			},
 			ox: -333,
 			oy: -62,
@@ -350,19 +434,9 @@ var requestAnimFrame =
 		computer: {
 			use: function()
 			{
-				var m;
+				say( "Oh NO! It CRASHED! Quick, let's find "+
+					"something to repair it!" );
 
-				objects.astronaut.inventory.computer = true;
-
-				if( objects.astronaut.inventory.pen )
-				{
-					fireBoosters();
-					m = "Oh, the pen fits in that restart hole, YEAH!";
-				}
-				else
-					m = "I could start the boosters! Oh no! It's BROKEN!";
-
-				say( m );
 				return true;
 			},
 			ox: 160,
@@ -374,6 +448,10 @@ var requestAnimFrame =
 			ox: -248,
 			oy: 0,
 			index: 0,
+			hand: {
+				ox: 60,
+				oy: -54
+			},
 			res: [
 				{/*astronaut0*/x:655,y:1343,w:143,h:149},
 				{/*astronaut1*/x:798,y:1343,w:143,h:148},
@@ -439,100 +517,118 @@ function drawSprite( sprite, x, y )
 		(y-sprite.centerY) | 0 );
 }
 
-function drawVenus( obj )
+function drawVenus( venus )
 {
-	var sprite = obj.sprites[0];
+	var sprite = venus.sprites[0];
 
 	if( !fireBoostersUntil ||
 		now < fireBoostersUntil )
 	{
-		var m = .628;
+		var m = .02;
 
 		if( fireBoostersUntil )
-			m *= 1/2000*(fireBoostersUntil-now);
+			m *= .0005*(fireBoostersUntil-now);
 
-		obj.angle += m*factor;
+		venus.angle += m*factor;
 
-		var a = obj.angle,
-			d = obj.distance;
+		var a = venus.angle,
+			d = venus.distance;
 
-		obj.x = (pivotX+d*Math.cos( a )) | 0;
-		obj.y = (pivotY+d*Math.sin( a )) | 0;
+		venus.x = (pivotX+d*Math.cos( a )) | 0;
+		venus.y = (pivotY+d*Math.sin( a )) | 0;
 	}
 
-	drawSprite( sprite, obj.x, obj.y );
+	drawSprite( sprite, venus.x, venus.y );
 }
 
-function drawStation( obj )
+function drawStation( station )
 {
 	drawSprite(
-		obj.sprites[killed ? 1 : 0],
+		station.sprites[killed ? 1 : 0],
 		pivotX,
 		pivotY );
 }
 
-function drawBooster( obj )
+function drawBooster( boosters )
 {
 	if( !fireBoostersUntil ||
 		fireBoostersUntil < now )
 		return;
 
 	drawSprite(
-		obj.sprites[0],
-		pivotX+obj.x,
-		pivotY+obj.y );
+		boosters.sprites[0],
+		pivotX+boosters.x,
+		pivotY+boosters.y );
 }
 
-function drawAstronaut( obj )
+function drawAstronaut( tom )
 {
 	if( killed )
 		return;
 
 	var sprite,
 		x,
-		y = pivotY+obj.y+Math.sin( now*.005 )*floating;
+		y = pivotY+tom.y+Math.sin( now*.005 )*floating;
 
-	if( obj.grab &&
-		obj.grabDist != 0 )
+	if( tom.grab &&
+		tom.grabDist != 0 )
 	{
-		var g = obj.grab;
+		var obj = tom.grab;
 
-		obj.x += obj.grabDist > 0 ? moving : -moving;
+		tom.x += (tom.grabDist > 0 ? moving : -moving)*factor;
 
-		if( (obj.grabDist > 0 && obj.x >= g.x) ||
-			(obj.grabDist < 0 && obj.x <= g.x) )
+		if( (tom.grabDist > 0 && tom.x >= obj.x) ||
+			(tom.grabDist < 0 && tom.x <= obj.x) )
 		{
-			if( g.use )
-				g.taken = g.use();
+			if( obj.use )
+				obj.used = obj.use();
 
-			obj.x = g.x;
-			obj.grab = null;
+			tom.x = obj.x;
+			tom.grab = null;
 		}
 	}
 
 	// pick sprite
 	{
-		var inv = obj.inventory;
+		var helmet = objects.helmet,
+			suit = objects.suit;
 
-		x = pivotX+obj.x | 0;
+		x = pivotX+tom.x | 0;
 
-		if( inv.helmet && inv.suit )
-			sprite = obj.sprites[5];
-		else if( inv.helmet )
-			sprite = obj.sprites[3];
-		else if( inv.suit )
-			sprite = obj.sprites[4];
+		if( helmet.used &&
+			suit.used )
+			sprite = tom.sprites[5];
+		else if( helmet.used )
+			sprite = tom.sprites[3];
+		else if( suit.used )
+			sprite = tom.sprites[4];
 		else
-			sprite = obj.sprites[
+			sprite = tom.sprites[
 				fireBoostersUntil ?
 				0 :
 				Math.round( now/500 )%3];
 	}
 
 	drawSprite( sprite, x, y );
+
+	if( objects.computer.used )
+	{
+		var o = objects.computer,
+			sprite = o.sprites[o.index],
+			hand = tom.hand,
+			gx = x+hand.grabX,
+			gy = y+hand.grabY;
+
+		o.left = gx-sprite.centerX;
+		o.top = gy-sprite.centerY;
+		o.right = gx+sprite.centerX;
+		o.bottom = gy+sprite.centerY;
+
+		drawSprite( sprite, gx, gy );
+	}
 }
 
-function drawHeat( obj )
+function drawHeat( heat )
 {
 	var b = 1;
 
@@ -551,7 +647,7 @@ function drawHeat( obj )
 		m *= b;
 
 		ctx.globalAlpha = m;
-		drawSprite( obj.sprites[0], pivotX, pivotY );
+		drawSprite( heat.sprites[0], pivotX, pivotY );
 		ctx.globalAlpha = 1;
 	}
 
@@ -563,7 +659,7 @@ function drawHeat( obj )
 		m *= b;
 
 		ctx.globalAlpha = Math.min( m, 1-m )*2;
-		drawSprite( obj.sprites[1], pivotX, pivotY );
+		drawSprite( heat.sprites[1], pivotX, pivotY );
 		ctx.globalAlpha = 1;
 	}
 }
@@ -587,8 +683,9 @@ function draw()
 		var e = document.createElement( "div" );
 		e.className = "Message";
 		e.innerHTML =
-			'<h2>Well done!</h2>'+
-			'<img src="patch.png" alt="Patch"/>';
+			'<div id="Success"><h1>Well done!</h1>'+
+			'<img src="patch.png" alt="Patch"/>'+
+			'<p>You survived!</p></div>';
 		document.body.appendChild( e );
 
 		success = true;
@@ -618,7 +715,7 @@ function draw()
 			obj.draw( obj );
 		else if(
 			!killed &&
-			!obj.taken )
+			!obj.used )
 		{
 			var sprite = obj.sprites[obj.index],
 				x = pivotX+obj.x,
@@ -648,7 +745,7 @@ function run()
 {
 	now = new Date().getTime();
 	uptime = now-start;
-	factor = (now-last)/1000;
+	factor = (now-last)/16;
 	last = now;
 
 	draw();
@@ -707,7 +804,7 @@ function click( ev )
 			top = obj.top,
 			bottom = obj.bottom;
 
-		if( obj.taken ||
+		if( obj.used ||
 			typeof obj.left === "undefined" )
 			continue;
 
@@ -767,18 +864,19 @@ function reset()
 		var obj = objects[name];
 
 		if( typeof obj.ox !== "undefined" )
-			obj.taken = false;
-	}
+		{
+			if( obj.reset )
+				obj.reset();
 
-	// reset lamp
-	objects.lamp.index = 0;
+			obj.used = false;
+		}
+	}
 
 	// reset astronaut
 	{
 		var a = objects.astronaut;
 
 		a.grab = null;
-		a.inventory = {};
 		a.x = a.startX;
 		a.y = a.startY;
 	}
@@ -855,11 +953,15 @@ function scale( styleWidth )
 		}
 	}
 
-	moving = 10*scale;
+	moving = Math.max( 2, 10*scale );
 
 	var a = objects.astronaut;
 	a.startX = a.x;
 	a.startY = a.y;
+
+	var h = a.hand;
+	h.grabX = h.ox*scale | 0;
+	h.grabY = h.oy*scale | 0;
 }
 
 function resize()
