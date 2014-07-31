@@ -15,6 +15,7 @@ body
 	letter-spacing: .01em;
 	text-align: center;
 	overflow: hidden;
+	-ms-touch-action: none;
 }
 
 #Intro,
@@ -111,7 +112,7 @@ p
 	max-width: 40em;
 }
 
-@media screen and (max-width: 640px)
+@media screen and (max-width: 640px), screen and (max-height: 420px)
 {
 	body
 	{
@@ -136,7 +137,7 @@ p
 	}
 }
 
-@media screen and (max-width: 320px)
+@media screen and (max-width: 320px), screen and (max-height: 240px)
 {
 	body
 	{
@@ -153,10 +154,7 @@ p
 	{
 		margin: .5em auto; padding: .25em .3em;
 	}
-}
 
-@media screen and (max-height: 240px)
-{
 	.Message img
 	{
 		width: 64px;
