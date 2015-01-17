@@ -742,14 +742,14 @@ function draw()
 
 function run()
 {
+	requestAnimFrame( run );
+
 	now = new Date().getTime();
 	uptime = now-start;
 	factor = (now-last)/16;
 	last = now;
 
 	draw();
-
-	requestAnimFrame( run );
 }
 
 function click( ev )
