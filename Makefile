@@ -9,7 +9,9 @@ OPTIONS = \
 	--times \
 	--compress
 
-upload: $(HTDOCS)/atlas.png
+all: live $(HTDOCS)/atlas.png
+
+live:
 	rsync $(OPTIONS) \
 		$(HTDOCS)/* \
 		$(WEBROOT)
