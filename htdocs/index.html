@@ -183,7 +183,7 @@ Source on
 </div>
 <script>
 
-"use strict";
+"use strict"
 
 var requestAnimFrame =
 		window.requestAnimationFrame ||
@@ -193,7 +193,7 @@ var requestAnimFrame =
 		window.oRequestAnimationFrame ||
 		function( callback )
 		{
-			window.setTimeout( callback, 16 );
+			window.setTimeout( callback, 16 )
 		},
 	objects = {
 		venus: {
@@ -221,21 +221,21 @@ var requestAnimFrame =
 		water: {
 			reset: function()
 			{
-				objects.water.empty = false;
+				objects.water.empty = false
 			},
 			use: function()
 			{
 				if( !objects.water.empty )
 				{
-					objects.water.empty = true;
+					objects.water.empty = true
 					say( "Right, it's getting hot in here "+
 						"so why not drink something? "+
-						"Gulp, ahh, better." );
+						"Gulp, ahh, better." )
 				}
 				else
-					say( "It's empty." );
+					say( "It's empty." )
 
-				return false;
+				return false
 			},
 			ox: 116,
 			oy: -39,
@@ -244,25 +244,25 @@ var requestAnimFrame =
 		food: {
 			reset: function()
 			{
-				objects.food.ration = 2;
+				objects.food.ration = 2
 			},
 			use: function()
 			{
 				switch( objects.food.ration-- )
 				{
 					case 2:
-						say( "Not exactly delicious but ok." );
-						break;
+						say( "Not exactly delicious but ok." )
+						break
 					case 1:
 						say( "Once you got the taste... "+
-							"But now to more important things!" );
-						break;
+							"But now to more important things!" )
+						break
 					default:
-						say( "Empty. But I guess I won't starve." );
-						break;
+						say( "Empty. But I guess I won't starve." )
+						break
 				}
 
-				return false;
+				return false
 			},
 			ox: -91,
 			oy: -11,
@@ -272,11 +272,11 @@ var requestAnimFrame =
 			use: function()
 			{
 				if( objects.computer.used )
-					say( "The computer isn't ill, it's a machine." );
+					say( "The computer isn't ill, it's a machine." )
 				else
-					say( "I'm not hurt yet." );
+					say( "I'm not hurt yet." )
 
-				return false;
+				return false
 			},
 			ox: 156,
 			oy: 33,
@@ -287,11 +287,11 @@ var requestAnimFrame =
 			{
 				if( objects.computer.used )
 					say( "That doesn't work, it's too big "+
-						"to fit in the reset hole." );
+						"to fit in the reset hole." )
 				else
-					say( "What should I do with it?" );
+					say( "What should I do with it?" )
 
-				return false;
+				return false
 			},
 			ox: -71,
 			oy: 27,
@@ -302,17 +302,17 @@ var requestAnimFrame =
 			{
 				if( objects.computer.used )
 				{
-					fireBoosters();
+					fireBoosters()
 					say( "The pen fits in the reset "+
-						"hole of the computer! YES!" );
+						"hole of the computer! YES!" )
 
-					return true;
+					return true
 				}
 
 				say( "What good is a pen right now? "+
-					"Make a testament?" );
+					"Make a testament?" )
 
-				return false;
+				return false
 			},
 			ox: -8,
 			oy: 24,
@@ -324,13 +324,13 @@ var requestAnimFrame =
 				if( objects.computer.used )
 					say( "&quot;To reset the computer, "+
 						"you need to stick a pen in the "+
-						"reset hole.&quot;" );
+						"reset hole.&quot;" )
 				else
 					say( "Well, lets see, it says "+
 						"something about firing "+
-						"the boosters..." );
+						"the boosters..." )
 
-				return false;
+				return false
 			},
 			ox: -142,
 			oy: 28,
@@ -339,14 +339,14 @@ var requestAnimFrame =
 		helmet: {
 			use: function()
 			{
-				objects.helmet.used = true;
+				objects.helmet.used = true
 
 				if( objects.suit.used )
-					say( "Ok, now I'm safe, I guess." );
+					say( "Ok, now I'm safe, I guess." )
 				else
-					say( "Where's my suit?" );
+					say( "Where's my suit?" )
 
-				return true;
+				return true
 			},
 			ox: -140,
 			oy: -45,
@@ -355,14 +355,14 @@ var requestAnimFrame =
 		suit: {
 			use: function()
 			{
-				objects.suit.used = true;
+				objects.suit.used = true
 
 				if( objects.helmet.used )
-					say( "That's a good idea!" );
+					say( "That's a good idea!" )
 				else
-					say( "Where's my helmet?" );
+					say( "Where's my helmet?" )
 
-				return true;
+				return true
 			},
 			ox: 54,
 			oy: -13,
@@ -371,9 +371,9 @@ var requestAnimFrame =
 		sleepbag: {
 			use: function()
 			{
-				say( "Probably not the best time for a nap." );
+				say( "Probably not the best time for a nap." )
 
-				return false;
+				return false
 			},
 			ox: -340,
 			oy: 15,
@@ -383,11 +383,11 @@ var requestAnimFrame =
 			use: function( obj )
 			{
 				if( objects.computer.used )
-					say( "No, that doesn't work." );
+					say( "No, that doesn't work." )
 				else
-					say( "They are red." );
+					say( "They are red." )
 
-				return false;
+				return false
 			},
 			ox: -297,
 			oy: 15,
@@ -396,22 +396,22 @@ var requestAnimFrame =
 		lamp: {
 			reset: function()
 			{
-				objects.lamp.index = 0;
+				objects.lamp.index = 0
 			},
 			use: function()
 			{
 				if( !objects.lamp.index )
 				{
-					objects.lamp.index = 1;
-					say( "Ok, now I have light!" );
+					objects.lamp.index = 1
+					say( "Ok, now I have light!" )
 				}
 				else if( objects.computer.used )
 					say( "There's a tiny reset hole on "+
-						"the computer!" );
+						"the computer!" )
 				else
-					say( "It's on." );
+					say( "It's on." )
 
-				return false;
+				return false
 			},
 			ox: -28,
 			oy: -55,
@@ -422,9 +422,9 @@ var requestAnimFrame =
 		camera: {
 			use: function()
 			{
-				say( "Should I take a picture or what?" );
+				say( "Should I take a picture or what?" )
 
-				return false;
+				return false
 			},
 			ox: -333,
 			oy: -62,
@@ -434,9 +434,9 @@ var requestAnimFrame =
 			use: function()
 			{
 				say( "Oh NO! It CRASHED! Quick, let's find "+
-					"something to repair it!" );
+					"something to repair it!" )
 
-				return true;
+				return true
 			},
 			ox: 160,
 			oy: -26,
@@ -488,24 +488,24 @@ var requestAnimFrame =
 	killed = false,
 	fireBoostersUntil = 0,
 	hud,
-	hudGoodUntil = 0;
+	hudGoodUntil = 0
 
 function fireBoosters()
 {
-	fireBoostersUntil = now+2000;
+	fireBoostersUntil = now+2000
 }
 
 function say( what )
 {
 	if( !hud )
 	{
-		hud = document.createElement( "div" );
-		hud.className = "Hud";
-		document.body.appendChild( hud );
+		hud = document.createElement( "div" )
+		hud.className = "Hud"
+		document.body.appendChild( hud )
 	}
 
-	hudGoodUntil = new Date().getTime()+4000;
-	hud.innerHTML = what;
+	hudGoodUntil = new Date().getTime()+4000
+	hud.innerHTML = what
 }
 
 function drawSprite( sprite, x, y )
@@ -513,31 +513,31 @@ function drawSprite( sprite, x, y )
 	ctx.drawImage(
 		sprite,
 		(x-sprite.centerX) | 0,
-		(y-sprite.centerY) | 0 );
+		(y-sprite.centerY) | 0 )
 }
 
 function drawVenus( venus )
 {
-	var sprite = venus.sprites[0];
+	var sprite = venus.sprites[0]
 
 	if( !fireBoostersUntil ||
 		now < fireBoostersUntil )
 	{
-		var m = .02;
+		var m = .02
 
 		if( fireBoostersUntil )
-			m *= .0005*(fireBoostersUntil-now);
+			m *= .0005*(fireBoostersUntil-now)
 
-		venus.angle += m*factor;
+		venus.angle += m*factor
 
 		var a = venus.angle,
-			d = venus.distance;
+			d = venus.distance
 
-		venus.x = (pivotX+d*Math.cos( a )) | 0;
-		venus.y = (pivotY+d*Math.sin( a )) | 0;
+		venus.x = (pivotX+d*Math.cos( a )) | 0
+		venus.y = (pivotY+d*Math.sin( a )) | 0
 	}
 
-	drawSprite( sprite, venus.x, venus.y );
+	drawSprite( sprite, venus.x, venus.y )
 }
 
 function drawStation( station )
@@ -545,70 +545,70 @@ function drawStation( station )
 	drawSprite(
 		station.sprites[killed ? 1 : 0],
 		pivotX,
-		pivotY );
+		pivotY )
 }
 
 function drawBooster( boosters )
 {
 	if( !fireBoostersUntil ||
 		fireBoostersUntil < now )
-		return;
+		return
 
 	drawSprite(
 		boosters.sprites[0],
 		pivotX+boosters.x,
-		pivotY+boosters.y );
+		pivotY+boosters.y )
 }
 
 function drawAstronaut( tom )
 {
 	if( killed )
-		return;
+		return
 
 	var sprite,
 		x,
-		y = pivotY+tom.y+Math.sin( now*.005 )*floating;
+		y = pivotY+tom.y+Math.sin( now*.005 )*floating
 
 	if( tom.grab &&
 		tom.grabDist != 0 )
 	{
-		var obj = tom.grab;
+		var obj = tom.grab
 
-		tom.x += (tom.grabDist > 0 ? moving : -moving)*factor;
+		tom.x += (tom.grabDist > 0 ? moving : -moving)*factor
 
 		if( (tom.grabDist > 0 && tom.x >= obj.x) ||
 			(tom.grabDist < 0 && tom.x <= obj.x) )
 		{
 			if( obj.use )
-				obj.used = obj.use();
+				obj.used = obj.use()
 
-			tom.x = obj.x;
-			tom.grab = null;
+			tom.x = obj.x
+			tom.grab = null
 		}
 	}
 
 	// pick sprite
 	{
 		var helmet = objects.helmet,
-			suit = objects.suit;
+			suit = objects.suit
 
-		x = pivotX+tom.x | 0;
+		x = pivotX+tom.x | 0
 
 		if( helmet.used &&
 			suit.used )
-			sprite = tom.sprites[5];
+			sprite = tom.sprites[5]
 		else if( helmet.used )
-			sprite = tom.sprites[3];
+			sprite = tom.sprites[3]
 		else if( suit.used )
-			sprite = tom.sprites[4];
+			sprite = tom.sprites[4]
 		else
 			sprite = tom.sprites[
 				fireBoostersUntil ?
 				0 :
-				Math.round( now/500 )%3];
+				Math.round( now/500 )%3]
 	}
 
-	drawSprite( sprite, x, y );
+	drawSprite( sprite, x, y )
 
 	if( objects.computer.used )
 	{
@@ -616,103 +616,103 @@ function drawAstronaut( tom )
 			sprite = o.sprites[o.index],
 			hand = tom.hand,
 			gx = x+hand.grabX,
-			gy = y+hand.grabY;
+			gy = y+hand.grabY
 
-		o.left = gx-sprite.centerX;
-		o.top = gy-sprite.centerY;
-		o.right = gx+sprite.centerX;
-		o.bottom = gy+sprite.centerY;
+		o.left = gx-sprite.centerX
+		o.top = gy-sprite.centerY
+		o.right = gx+sprite.centerX
+		o.bottom = gy+sprite.centerY
 
-		drawSprite( sprite, gx, gy );
+		drawSprite( sprite, gx, gy )
 	}
 }
 
 function drawHeat( heat )
 {
-	var b = 1;
+	var b = 1
 
 	if( fireBoostersUntil )
 	{
 		if( fireBoostersUntil > now )
-			b = 1/2000*(fireBoostersUntil-now);
+			b = 1/2000*(fireBoostersUntil-now)
 		else
-			b = 0;
+			b = 0
 	}
 
 	if( uptime < 10000 )
 	{
-		var m = 1/10000*uptime;
+		var m = 1/10000*uptime
 
-		m *= b;
+		m *= b
 
-		ctx.globalAlpha = m;
-		drawSprite( heat.sprites[0], pivotX, pivotY );
-		ctx.globalAlpha = 1;
+		ctx.globalAlpha = m
+		drawSprite( heat.sprites[0], pivotX, pivotY )
+		ctx.globalAlpha = 1
 	}
 
 	if( uptime > 9000 &&
 		uptime < 12000 )
 	{
-		var m = 1/3000*(uptime-9000);
+		var m = 1/3000*(uptime-9000)
 
-		m *= b;
+		m *= b
 
-		ctx.globalAlpha = Math.min( m, 1-m )*2;
-		drawSprite( heat.sprites[1], pivotX, pivotY );
-		ctx.globalAlpha = 1;
+		ctx.globalAlpha = Math.min( m, 1-m )*2
+		drawSprite( heat.sprites[1], pivotX, pivotY )
+		ctx.globalAlpha = 1
 	}
 }
 
 function draw()
 {
-	ctx.fillStyle = "#000";
-	ctx.fillRect( 0, 0, width, height );
+	ctx.fillStyle = "#000"
+	ctx.fillRect( 0, 0, width, height )
 
 	if( uptime > 10000 &&
 		!killed &&
 		!fireBoostersUntil )
 	{
-		say( "AAAARGHHHH!!" );
-		killed = true;
+		say( "AAAARGHHHH!!" )
+		killed = true
 	}
 
 	if( !success &&
 		fireBoostersUntil &&
 		fireBoostersUntil < now )
 	{
-		var e = document.createElement( "div" );
-		e.className = "Message";
+		var e = document.createElement( "div" )
+		e.className = "Message"
 		e.innerHTML =
 			'<div id="Success"><h1>Well done!</h1>'+
 			'<img src="patch.png" alt="Patch"/>'+
-			'<p>You survived!</p></div>';
-		document.body.appendChild( e );
+			'<p>You survived!</p></div>'
+		document.body.appendChild( e )
 
-		success = true;
+		success = true
 	}
 
-	pivotX = centerX;
-	pivotY = centerY;
+	pivotX = centerX
+	pivotY = centerY
 
 	if( !fireBoostersUntil &&
 		uptime < 10000 )
 	{
 		var a = now,
-			f = shakeMax*Math.pow( 2, 10*(uptime/10000-1) );
+			f = shakeMax*Math.pow( 2, 10*(uptime/10000-1) )
 
 		if( f > shakeMin )
 		{
-			pivotX += Math.cos( a )*f;
-			pivotY += Math.sin( a )*f;
+			pivotX += Math.cos( a )*f
+			pivotY += Math.sin( a )*f
 		}
 	}
 
 	for( var name in objects )
 	{
-		var obj = objects[name];
+		var obj = objects[name]
 
 		if( obj.draw )
-			obj.draw( obj );
+			obj.draw( obj )
 		else if(
 			!killed &&
 			!obj.used )
@@ -720,81 +720,81 @@ function draw()
 			var sprite = obj.sprites[obj.index],
 				x = pivotX+obj.x,
 				y = pivotY+obj.y+Math.sin(
-					now*.005+obj.x )*floating;
+					now*.005+obj.x )*floating
 
-			obj.left = x-sprite.centerX;
-			obj.top = y-sprite.centerY;
-			obj.right = x+sprite.centerX;
-			obj.bottom = y+sprite.centerY;
+			obj.left = x-sprite.centerX
+			obj.top = y-sprite.centerY
+			obj.right = x+sprite.centerX
+			obj.bottom = y+sprite.centerY
 
-			ctx.drawImage( sprite, obj.left | 0, obj.top | 0 );
+			ctx.drawImage( sprite, obj.left | 0, obj.top | 0 )
 		}
 	}
 
 	if( hudGoodUntil &&
 		hudGoodUntil < now )
 	{
-		hudGoodUntil = 0;
+		hudGoodUntil = 0
 
 		if( hud )
-			hud.innerHTML = "";
+			hud.innerHTML = ""
 	}
 }
 
 function run()
 {
-	requestAnimFrame( run );
+	requestAnimFrame( run )
 
-	now = new Date().getTime();
-	uptime = now-start;
-	factor = (now-last)/16;
-	last = now;
+	now = new Date().getTime()
+	uptime = now-start
+	factor = (now-last)/16
+	last = now
 
-	draw();
+	draw()
 }
 
 function click( ev )
 {
 	if( fireBoostersUntil )
 	{
-		ev.preventDefault();
-		return false;
+		ev.preventDefault()
+		return false
 	}
 	else if( killed  )
 	{
 		if( uptime > 12000 )
-			reset();
+			reset()
 
-		ev.preventDefault();
-		return false;
+		ev.preventDefault()
+		return false
 	}
 
 	var x,
-		y;
+		y
 
 	if( ev.touches )
 	{
-		var t = ev.touches[0];
+		var t = ev.touches[0]
 
-		x = t.pageX;
-		y = t.pageY;
+		x = t.pageX
+		y = t.pageY
 	}
 	else if( document.all )
 	{
-		x = event.clientX;
-		y = event.clientY;
+		x = event.clientX
+		y = event.clientY
 	}
 	else
 	{
-		x = ev.pageX;
-		y = ev.pageY;
+		x = ev.pageX
+		y = ev.pageY
 	}
 
-	x = x*ratio | 0;
-	y = y*ratio | 0;
+	x = x*ratio | 0
+	y = y*ratio | 0
 
 	var chosen = null,
-		closest = tolerance;
+		closest = tolerance
 
 	for( var name in objects )
 	{
@@ -802,11 +802,11 @@ function click( ev )
 			left = obj.left,
 			right = obj.right,
 			top = obj.top,
-			bottom = obj.bottom;
+			bottom = obj.bottom
 
 		if( obj.used ||
 			typeof obj.left === "undefined" )
-			continue;
+			continue
 
 		// pointer inside object rectangle
 		if( x >= left &&
@@ -814,8 +814,8 @@ function click( ev )
 			y >= top &&
 			y <= bottom )
 		{
-			chosen = obj;
-			break;
+			chosen = obj
+			break
 		}
 
 		// find closest object edge to pointer
@@ -823,81 +823,81 @@ function click( ev )
 			Math.abs( y-bottom ) < closest )
 		{
 			var dl = Math.abs( x-left ),
-				dr = Math.abs( x-right );
+				dr = Math.abs( x-right )
 
 			if( dl < closest )
 			{
-				chosen = obj;
-				closest = dl;
+				chosen = obj
+				closest = dl
 			}
 			else if( dr < closest )
 			{
-				chosen = obj;
-				closest = dr;
+				chosen = obj
+				closest = dr
 			}
 		}
 	}
 
 	if( chosen )
 	{
-		var a = objects.astronaut;
+		var a = objects.astronaut
 
-		a.grab = chosen;
-		a.grabDist = chosen.x-a.x;
+		a.grab = chosen
+		a.grabDist = chosen.x-a.x
 	}
 
-	ev.preventDefault();
-	return false;
+	ev.preventDefault()
+	return false
 }
 
 function reset()
 {
-	start = new Date().getTime();
-	last = start-16;
-	success = false;
-	killed = false;
-	fireBoostersUntil = 0;
-	hudGoodUntil = start;
+	start = new Date().getTime()
+	last = start-16
+	success = false
+	killed = false
+	fireBoostersUntil = 0
+	hudGoodUntil = start
 
 	for( var name in objects )
 	{
-		var obj = objects[name];
+		var obj = objects[name]
 
 		if( typeof obj.ox !== "undefined" )
 		{
 			if( obj.reset )
-				obj.reset();
+				obj.reset()
 
-			obj.used = false;
+			obj.used = false
 		}
 	}
 
 	// reset astronaut
 	{
-		var a = objects.astronaut;
+		var a = objects.astronaut
 
-		a.grab = null;
-		a.x = a.startX;
-		a.y = a.startY;
+		a.grab = null
+		a.x = a.startX
+		a.y = a.startY
 	}
 }
 
 function scale( styleWidth )
 {
 	var scale,
-		ref = objects.heat.res[1].w;
+		ref = objects.heat.res[1].w
 
 	if( styleWidth >= ref )
-		scale = 1;
+		scale = 1
 	else
-		scale = width/ref;
+		scale = width/ref
 
 	for( var name in objects )
 	{
 		var obj = objects[name],
-			res = obj.res;
+			res = obj.res
 
-		obj.sprites = {};
+		obj.sprites = {}
 
 		for( var n = res.length; n--; )
 		{
@@ -905,32 +905,32 @@ function scale( styleWidth )
 				w = bounds.w*scale | 0,
 				h = bounds.h*scale | 0,
 				image,
-				context;
+				context
 
 			if( !(image = document.createElement( "canvas" )) ||
 				!(context = image.getContext( "2d" )) )
-				continue;
+				continue
 
 			if( typeof obj.scale !== "undefined" )
 			{
-				w = w*obj.scale | 0;
-				h = h*obj.scale | 0;
+				w = w*obj.scale | 0
+				h = h*obj.scale | 0
 
 				// don't make sprites bigger than 3 megapixels
 				// (can only happen on high dpi displays)
 				// because that will slow down rendering on iOS
 				if( w*h > 3000000 )
 				{
-					h = (1200/w*h) | 0;
-					w = 1200;
+					h = (1200/w*h) | 0
+					w = 1200
 				}
 			}
 
-			image.width = w;
-			image.height = h;
+			image.width = w
+			image.height = h
 
-			image.centerX = w >> 1;
-			image.centerY = h >> 1;
+			image.centerX = w >> 1
+			image.centerY = h >> 1
 
 			context.drawImage(
 				atlas,
@@ -941,67 +941,67 @@ function scale( styleWidth )
 				0 | 0,
 				0 | 0,
 				w | 0,
-				h | 0 );
+				h | 0 )
 
-			obj.sprites[n] = image;
+			obj.sprites[n] = image
 		}
 
 		if( typeof obj.ox !== "undefined" )
 		{
-			obj.x = Math.round( obj.ox*scale );
-			obj.y = Math.round( obj.oy*scale );
+			obj.x = Math.round( obj.ox*scale )
+			obj.y = Math.round( obj.oy*scale )
 		}
 	}
 
-	moving = Math.max( 2, 10*scale );
+	moving = Math.max( 2, 10*scale )
 
-	var a = objects.astronaut;
-	a.startX = a.x;
-	a.startY = a.y;
+	var a = objects.astronaut
+	a.startX = a.x
+	a.startY = a.y
 
-	var h = a.hand;
-	h.grabX = h.ox*scale | 0;
-	h.grabY = h.oy*scale | 0;
+	var h = a.hand
+	h.grabX = h.ox*scale | 0
+	h.grabY = h.oy*scale | 0
 }
 
 function resize()
 {
 	var styleWidth = window.innerWidth,
-		styleHeight = window.innerHeight;
+		styleHeight = window.innerHeight
 
 	if( width == styleWidth &&
 		height == styleHeight )
-		return;
+		return
 
-	width = styleWidth*ratio | 0;
-	height = styleHeight*ratio | 0;
+	width = styleWidth*ratio | 0
+	height = styleHeight*ratio | 0
 
-	canvas.width = width;
-	canvas.height = height;
+	canvas.width = width
+	canvas.height = height
 
-	canvas.style.width = styleWidth+"px";
-	canvas.style.height = styleHeight+"px";
+	canvas.style.width = styleWidth+"px"
+	canvas.style.height = styleHeight+"px"
 
-	centerX = width >> 1;
-	centerY = height >> 1;
+	centerX = width >> 1
+	centerY = height >> 1
 
-	tolerance = 24*ratio | 0;
+	tolerance = 24*ratio | 0
 
-	var min = Math.min( width, height );
-	floating = min*.005 | 0;
-	objects.venus.distance = min*.25 | 0;
+	var min = Math.min( width, height )
+	floating = min*.005 | 0
+	objects.venus.distance = min*.25 | 0
 
-	shakeMin = .5*ratio;
-	shakeMax = 5*ratio;
+	shakeMin = .5*ratio
+	shakeMax = 5*ratio
 
-	scale( styleWidth );
+	scale( styleWidth )
 }
 
 function init()
 {
 	if( !(canvas = document.createElement( "canvas" )) ||
 		!(ctx = canvas.getContext( "2d", { alpha: false } )) )
-		return null;
+		return null
 
 	ratio =
 		(window.devicePixelRatio || 1)/
@@ -1012,61 +1012,61 @@ function init()
 			ctx.backingStorePixelRatio ||
 			1)
 
-	window.onresize = resize;
-	resize();
+	window.onresize = resize
+	resize()
 
-	canvas.onmouseup = click;
+	canvas.onmouseup = click
 
 	if( "ontouchstart" in document.documentElement )
 	{
-		canvas.ontouchstart = click;
+		canvas.ontouchstart = click
 		canvas.ontouchmove = function( ev )
 		{
-			ev.preventDefault();
-			return false;
-		};
+			ev.preventDefault()
+			return false
+		}
 	}
 
-	document.body.appendChild( canvas );
+	document.body.appendChild( canvas )
 
-	reset();
-	run();
+	reset()
+	run()
 }
 
 function start()
 {
 	if( !atlas.complete )
-		return;
+		return
 
 	// start loading patch in the background
-	var patch = new Image();
-	patch.src = "patch.png";
+	var patch = new Image()
+	patch.src = "patch.png"
 
-	document.getElementById( "Intro" ).style.display = "none";
+	document.getElementById( "Intro" ).style.display = "none"
 
-	init();
+	init()
 }
 
 function waitForAtlas()
 {
 	if( !atlas )
 	{
-		atlas = new Image();
-		atlas.src = "atlas.png";
+		atlas = new Image()
+		atlas.src = "atlas.png"
 	}
 
 	if( !atlas.complete )
 	{
-		setTimeout( waitForAtlas, 500 );
-		return;
+		setTimeout( waitForAtlas, 500 )
+		return
 	}
 
-	var e = document.getElementById( "StartButton" );
-	e.className = "Ready";
-	e.innerHTML = "Ready!";
+	var e = document.getElementById( "StartButton" )
+	e.className = "Ready"
+	e.innerHTML = "Ready!"
 }
 
-window.onload = waitForAtlas;
+window.onload = waitForAtlas
 
 </script>
 </body>
